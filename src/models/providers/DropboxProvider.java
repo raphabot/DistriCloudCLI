@@ -1,9 +1,9 @@
 package models.providers;
 
-import models.abstracts.ProviderAbstract;
-
 import java.io.File;
 import com.dropbox.core.*;
+import models.abstracts.ProviderAbstract;
+
 import java.io.*;
 import java.util.Locale;
 
@@ -25,28 +25,56 @@ public class DropboxProvider extends ProviderAbstract {
      */
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
+    private String token;
+
+    private DbxWebAuthNoRedirect webAuth;
+    private DbxRequestConfig config;
+    private DbxClient client;
+
     public DropboxProvider() {
         DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
-
+        config = new DbxRequestConfig("DistriCloud/0.1",Locale.getDefault().toString());
+        webAuth = new DbxWebAuthNoRedirect(config, appInfo);
     }
 
     @Override
     public String getLoginURL() {
-        return null;
+        return webAuth.start();
     }
 
     @Override
     public Boolean setToken(String token) {
-        return null;
+        try{
+            // This will fail if the user enters an invalid authorization code.
+            DbxAuthFinish authFinish = webAuth.finish(token);
+            String accessToken = authFinish.accessToken;
+
+            client = new DbxClient(config, accessToken);
+        }catch (DbxException e){return false;}
+
+        return true;
     }
 
     @Override
     public String getToken() {
-        return null;
+        if (this.token.isEmpty()){
+            return "-1";
+        }
+        return this.token;
     }
 
     @Override
-    public boolean uploadFile(File filePath, String title) {
-        return false;
+    public boolean uploadFile(String filePath, String title) {
+        try {
+            File inputFile = new File(filePath);
+            FileInputStream inputStream = new FileInputStream(inputFile);
+
+            DbxEntry.File uploadedFile = client.uploadFile("/"+title, DbxWriteMode.add(), inputFile.length(), inputStream);
+            System.out.println("Uploaded: " + uploadedFile.toString());
+            inputStream.close();
+        }
+        catch (Exception e){return false;}
+        return true;
     }
 }
+

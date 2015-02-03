@@ -46,6 +46,6 @@ public abstract class ProviderAbstract {
      * @param title title of the file
      * @return true if the upload succeed, false otherwise
      */
-    abstract public boolean uploadFile(File filePath, String title);
+    abstract public boolean uploadFile(String filePath, String title);
 
 }

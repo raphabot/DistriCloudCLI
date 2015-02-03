@@ -84,7 +84,7 @@ public class GoogleDriveProvider extends ProviderAbstract {
     }
 
     @Override
-    public boolean uploadFile(File filePath, String title) {
+    public boolean uploadFile(String filePath, String title) {
 
         //Insert a file
         com.google.api.services.drive.model.File body = new com.google.api.services.drive.model.File();
@@ -92,7 +92,7 @@ public class GoogleDriveProvider extends ProviderAbstract {
         body.setDescription("A test document");
         body.setMimeType("text/plain");
 
-        java.io.File fileContent = new java.io.File("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt");
+        java.io.File fileContent = new java.io.File(filePath);
         FileContent mediaContent = new FileContent("text/plain", fileContent);
 
         try{
