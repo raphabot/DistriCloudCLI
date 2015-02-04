@@ -87,8 +87,7 @@ public class Splitter {
             LinkedList<File> list = new LinkedList<File>();
             boolean exists = true;
             File temp = null;
-            File dest = new File(f.getPath().substring(0,
-                    f.getPath().lastIndexOf(".part")));
+            File dest = new File(f.getPath().substring(0,f.getPath().lastIndexOf(".part")));
             FileInputStream fis = null;
             FileOutputStream fos = new FileOutputStream(dest);
             int part = 0;

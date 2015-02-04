@@ -1,6 +1,7 @@
 package models.abstracts;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by raphabot on 21/12/14.
@@ -44,9 +45,9 @@ public abstract class ProviderAbstract {
      * This method will upload a file to the provider.
      * @param filePath file path
      * @param title title of the file
-     * @return true if the upload succeed, false otherwise
+     * @return the path or id on where to download the file
      */
-    abstract public boolean uploadFile(String filePath, String title);
+    abstract public String uploadFile(String filePath, String title) throws Exception;
 
     /**
      * This method will download a file from the provider

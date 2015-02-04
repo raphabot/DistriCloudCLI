@@ -12,8 +12,9 @@ import java.util.ArrayList;
  */
 public class Core {
 
-    public static boolean encodeSplitUpload(String filePath, ArrayList<ProviderAbstract> providers){
+    public static ArrayList <String> encodeSplitUpload(String filePath, ArrayList<ProviderAbstract> providers){
 
+        ArrayList <String> remoteFilePaths = new ArrayList <String>();
         int numParts = providers.size();
 
         //Encode file
@@ -24,12 +25,36 @@ public class Core {
         Splitter splitter = new Splitter(file);
         splitter.split(numParts);
 
+        //Upload files
         for (int i = 0; i < numParts; i++){
             ProviderAbstract provider = providers.get(i);
             try{
-                System.out.println("uploadFile: " + provider.uploadFile(filePath + ".part." + i, "part" + i));
-            }catch (Exception e){}
+                remoteFilePaths.add(provider.uploadFile(filePath + ".part." + i, "part" + i));
+            }catch (Exception e){return null;}
         }
+        return remoteFilePaths;
+    }
+
+    public static boolean downloadMergeDecode(String filePath, ArrayList <String> remoteFilePaths, ArrayList<ProviderAbstract> providers){
+
+        int numParts = providers.size();
+
+        //Download files
+        for (int i = 0; i < numParts; i++){
+            ProviderAbstract provider = providers.get(i);
+            try{
+                System.out.println("downloadFile: " + provider.downloadFile(filePath + ".part." + i, remoteFilePaths.get(i)));
+            }catch (Exception e){return false;}
+        }
+
+        //Merge files
+        File file = new File(filePath + ".part.0");
+        Splitter splitter = new Splitter(file);
+        splitter.unsplit();
+
+        //Decode file
+
+
         return false;
     }
 }

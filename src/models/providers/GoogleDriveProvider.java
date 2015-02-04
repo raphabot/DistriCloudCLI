@@ -96,7 +96,7 @@ public class GoogleDriveProvider extends ProviderAbstract {
     }
 
     @Override
-    public boolean uploadFile(String filePath, String title) {
+    public String uploadFile(String filePath, String title) throws IOException {
 
         //Insert a file
         com.google.api.services.drive.model.File body = new com.google.api.services.drive.model.File();
@@ -107,13 +107,8 @@ public class GoogleDriveProvider extends ProviderAbstract {
         java.io.File fileContent = new java.io.File(filePath);
         FileContent mediaContent = new FileContent("text/plain", fileContent);
 
-        try {
-            com.google.api.services.drive.model.File fileg = drive.files().insert(body, mediaContent).execute();
-            System.out.println("File ID: " + fileg.getId());
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+        com.google.api.services.drive.model.File fileg = drive.files().insert(body, mediaContent).execute();
+        return fileg.getId();
     }
 
     @Override

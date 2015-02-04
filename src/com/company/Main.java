@@ -30,16 +30,22 @@ public class Main {
                 //System.out.println("uploadFile: " + provider.uploadFile("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", "Teste 2.txt"));
             }catch (Exception e){}
         }
-        //Core.encodeSplitUpload("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", providers);
-        System.out.println("uploadFile: " + providers.get(0).uploadFile("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", "Teste 2.txt"));
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String id = null;
+
+        ArrayList <String> remoteFilePaths = Core.encodeSplitUpload("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", providers);
+        Core.downloadMergeDecode("/home/raphabot/IdeaProjects/DistiCloudCLI/resultado-download-merge.txt", remoteFilePaths, providers);
+        /*
         try {
-            id = br.readLine();
-            providers.get(0).downloadFile("dropbox-download",id.toString());
-        } catch (IOException e) {
+            for (int i = 0; i < providers.size(); i++){
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                String id = br.readLine();
+                providers.get(i).downloadFile("download.part."+i,id);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        */
+
+
 
         /*
         GoogleDriveProvider drive = new GoogleDriveProvider();

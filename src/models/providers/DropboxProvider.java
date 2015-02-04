@@ -64,17 +64,13 @@ public class DropboxProvider extends ProviderAbstract {
     }
 
     @Override
-    public boolean uploadFile(String filePath, String title) {
-        try {
-            File inputFile = new File(filePath);
-            FileInputStream inputStream = new FileInputStream(inputFile);
-
-            DbxEntry.File uploadedFile = client.uploadFile("/"+title, DbxWriteMode.add(), inputFile.length(), inputStream);
-            System.out.println("Uploaded: " + uploadedFile.toString());
-            inputStream.close();
-        }
-        catch (Exception e){return false;}
-        return true;
+    public String uploadFile(String filePath, String title) throws Exception {
+        File inputFile = new File(filePath);
+        FileInputStream inputStream = new FileInputStream(inputFile);
+        DbxEntry.File uploadedFile = client.uploadFile("/"+title, DbxWriteMode.add(), inputFile.length(), inputStream);
+        System.out.println("Uploaded: " + uploadedFile.path.toString());
+        inputStream.close();
+        return uploadedFile.path.toString();
     }
 
     @Override
