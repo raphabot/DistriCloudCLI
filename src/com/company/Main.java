@@ -7,6 +7,7 @@ import models.providers.GoogleDriveProvider;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -30,7 +31,16 @@ public class Main {
             }catch (Exception e){}
         }
         //Core.encodeSplitUpload("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", providers);
-        providers.get(1).downloadFile("dropbox-download","/part1");
+        System.out.println("uploadFile: " + providers.get(0).uploadFile("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", "Teste 2.txt"));
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String id = null;
+        try {
+            id = br.readLine();
+            providers.get(0).downloadFile("dropbox-download",id.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         /*
         GoogleDriveProvider drive = new GoogleDriveProvider();
         System.out.println(drive.getLoginURL());

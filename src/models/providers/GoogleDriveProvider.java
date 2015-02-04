@@ -4,15 +4,19 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.FileContent;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
 import models.abstracts.ProviderAbstract;
+import sun.misc.IOUtils;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -34,13 +38,19 @@ public class GoogleDriveProvider extends ProviderAbstract {
      */
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
-    /** Global instance of the HTTP transport. */
+    /**
+     * Global instance of the HTTP transport.
+     */
     private HttpTransport httpTransport = new NetHttpTransport();
 
-    /** Global Drive API client. */
+    /**
+     * Global Drive API client.
+     */
     private static Drive drive = null;
 
-    /** Global instance of the JSON factory. */
+    /**
+     * Global instance of the JSON factory.
+     */
     private static JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
     /** */
@@ -64,20 +74,22 @@ public class GoogleDriveProvider extends ProviderAbstract {
     @Override
     public Boolean setToken(String token) {
         this.token = token;
-        try{
+        try {
             GoogleTokenResponse response = flow.newTokenRequest(token).setRedirectUri(REDIRECT_URI).execute();
             GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
 
             //Create a new authorized API client
             drive = new Drive.Builder(httpTransport, jsonFactory, credential).build();
-        }catch (IOException e){return false;}
+        } catch (IOException e) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public String getToken() {
-        if (this.token.isEmpty()){
+        if (this.token.isEmpty()) {
             return "-1";
         }
         return this.token;
@@ -95,17 +107,40 @@ public class GoogleDriveProvider extends ProviderAbstract {
         java.io.File fileContent = new java.io.File(filePath);
         FileContent mediaContent = new FileContent("text/plain", fileContent);
 
-        try{
+        try {
             com.google.api.services.drive.model.File fileg = drive.files().insert(body, mediaContent).execute();
             System.out.println("File ID: " + fileg.getId());
-        } catch (IOException e){return false;}
+        } catch (IOException e) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public boolean downloadFile(String localFilePath, String remoteFilePath) {
+        //the filePath, in google's provider, is an id.
+        try {
+            File file = drive.files().get(remoteFilePath).execute();
+            if (file.getDownloadUrl() != null && file.getDownloadUrl().length() > 0) {
+                try {
+                    HttpResponse resp = drive.getRequestFactory().buildGetRequest(new GenericUrl(file.getDownloadUrl())).execute();
+                    FileOutputStream outputStream;
+                    outputStream = new FileOutputStream(localFilePath);
+                    //Write the outputstream from provider response
+                    com.google.api.client.util.IOUtils.copy(resp.getContent(), outputStream);
+                } catch (IOException e) {
+                    // An error occurred.
+                    e.printStackTrace();
+                    return false;
+                }
+            } else {
+                // The file doesn't have any content stored on Drive.
+                return false;
+            }
 
-
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 }
