@@ -101,4 +101,11 @@ public class GoogleDriveProvider extends ProviderAbstract {
         } catch (IOException e){return false;}
         return true;
     }
+
+    @Override
+    public boolean downloadFile(String localFilePath, String remoteFilePath) {
+
+
+        return false;
+    }
 }

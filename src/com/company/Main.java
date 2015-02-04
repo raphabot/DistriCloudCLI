@@ -29,7 +29,8 @@ public class Main {
                 //System.out.println("uploadFile: " + provider.uploadFile("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", "Teste 2.txt"));
             }catch (Exception e){}
         }
-        Core.encodeSplitUpload("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", providers);
+        //Core.encodeSplitUpload("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt", providers);
+        providers.get(1).downloadFile("dropbox-download","/part1");
         /*
         GoogleDriveProvider drive = new GoogleDriveProvider();
         System.out.println(drive.getLoginURL());

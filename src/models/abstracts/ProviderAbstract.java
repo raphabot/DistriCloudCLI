@@ -42,10 +42,18 @@ public abstract class ProviderAbstract {
 
     /**
      * This method will upload a file to the provider.
-     * @param file file path
+     * @param filePath file path
      * @param title title of the file
      * @return true if the upload succeed, false otherwise
      */
     abstract public boolean uploadFile(String filePath, String title);
+
+    /**
+     * This method will download a file from the provider
+     * @param localFilePath where the file will be saved
+     * @param remoteFilePath file path of remote file
+     * @return true if the download succeed, false otherwise
+     */
+    abstract public boolean downloadFile(String localFilePath, String remoteFilePath);
 
 }

@@ -76,5 +76,32 @@ public class DropboxProvider extends ProviderAbstract {
         catch (Exception e){return false;}
         return true;
     }
+
+    @Override
+    public boolean downloadFile(String localFilePath, String remoteFilePath) {
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(localFilePath);
+            DbxEntry.File downloadedFile = client.getFile(remoteFilePath, null, outputStream);
+            System.out.println("Metadata: " + downloadedFile.toString());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DbxException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                //file successfully written and closed
+                outputStream.close();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return false;
+    }
 }
 
