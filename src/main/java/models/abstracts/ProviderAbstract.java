@@ -3,6 +3,7 @@ package models.abstracts;
 import java.io.File;
 import java.io.IOException;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -13,8 +14,13 @@ import javax.persistence.Table;
 @Entity
 @Table(name="Provider")
 public abstract class ProviderAbstract {
+
+    /**
+     * This is a unique provider ID to database use.
+     */
     @Id
-    private Long idPtovider;
+    @GeneratedValue
+    protected Long idProvider;
     /**
      * This is a unique client ID that must be required in the API website.
      */
@@ -63,5 +69,11 @@ public abstract class ProviderAbstract {
      * @return true if the download succeed, false otherwise
      */
     abstract public boolean downloadFile(String localFilePath, String remoteFilePath);
+    
+    /**
+     * This method will return the provider Id
+     * @return provider Id
+     */
+    abstract public Long getIdProvider();
 
 }

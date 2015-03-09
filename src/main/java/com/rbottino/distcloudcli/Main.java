@@ -15,10 +15,29 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 public class Main {
 
     public static void main(String[] args) {
+        
+        DropboxProvider dbp = new DropboxProvider();
+        dbp.setToken("teste");
+
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("hsqldb");
+        EntityManager manager = factory.createEntityManager();
+
+        manager.getTransaction().begin();    
+        manager.persist(dbp);
+        manager.getTransaction().commit();  
+
+        System.out.println("ID da tarefa: " + dbp.getIdProvider());
+
+        manager.close();
+        
+        
         ArrayList<ProviderAbstract> providers = new ArrayList<ProviderAbstract>();
         GoogleDriveProvider drive = new GoogleDriveProvider();
         providers.add(drive);

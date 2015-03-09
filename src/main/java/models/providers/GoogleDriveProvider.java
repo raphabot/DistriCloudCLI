@@ -138,4 +138,9 @@ public class GoogleDriveProvider extends ProviderAbstract {
         }
         return false;
     }
+    
+    @Override
+    public Long getIdProvider() {
+        return this.idProvider;
+    }
 }

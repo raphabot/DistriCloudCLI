@@ -24,7 +24,7 @@ public class DropboxProvider extends ProviderAbstract {
      * This is a unique redirect URI that must be required in the API website.
      */
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
-
+    
     private String token;
 
     private DbxWebAuthNoRedirect webAuth;
@@ -98,6 +98,11 @@ public class DropboxProvider extends ProviderAbstract {
 
         }
         return false;
+    }
+
+    @Override
+    public Long getIdProvider() {
+        return this.idProvider;
     }
 }
 
