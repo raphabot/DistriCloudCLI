@@ -6,10 +6,13 @@ import models.abstracts.ProviderAbstract;
 
 import java.io.*;
 import java.util.Locale;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 /**
  * Created by raphabot on 22/12/14.
  */
+@Entity
 public class DropboxProvider extends ProviderAbstract {
 
     /**
@@ -27,8 +30,11 @@ public class DropboxProvider extends ProviderAbstract {
     
     private String token;
 
+    @Transient
     private DbxWebAuthNoRedirect webAuth;
+    @Transient
     private DbxRequestConfig config;
+    @Transient
     private DbxClient client;
 
     public DropboxProvider() {

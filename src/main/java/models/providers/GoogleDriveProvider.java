@@ -19,10 +19,13 @@ import sun.misc.IOUtils;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 /**
  * Created by raphabot on 21/12/14.
  */
+@Entity
 public class GoogleDriveProvider extends ProviderAbstract {
 
     /**
@@ -41,21 +44,25 @@ public class GoogleDriveProvider extends ProviderAbstract {
     /**
      * Global instance of the HTTP transport.
      */
+    @Transient
     private HttpTransport httpTransport = new NetHttpTransport();
 
     /**
      * Global Drive API client.
      */
+    @Transient
     private static Drive drive = null;
 
     /**
      * Global instance of the JSON factory.
      */
+    @Transient
     private static JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
     /** */
     private String token;
 
+    @Transient
     private GoogleAuthorizationCodeFlow flow;
 
     public GoogleDriveProvider() {
