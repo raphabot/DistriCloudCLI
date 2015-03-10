@@ -18,13 +18,14 @@ import java.util.ArrayList;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import utils.Constants;
 
 public class Main {
 
     public static void main(String[] args) {
         
-        DropboxProvider dbp = new DropboxProvider();
-        dbp.setToken("teste");
+        DropboxProvider dbp = new DropboxProvider(Constants.DROPBOX_PROVIDER, null);
+        dbp.setToken("test");
 
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("hsqldb");
         EntityManager manager = factory.createEntityManager();
@@ -33,15 +34,15 @@ public class Main {
         manager.persist(dbp);
         manager.getTransaction().commit();  
 
-        System.out.println("ID da tarefa: " + dbp.getIdProvider());
+        System.out.println("Provider/'s ID: " + dbp.getIdProvider());
 
         manager.close();
         
         
         ArrayList<ProviderAbstract> providers = new ArrayList<ProviderAbstract>();
-        GoogleDriveProvider drive = new GoogleDriveProvider();
+        GoogleDriveProvider drive = new GoogleDriveProvider(Constants.GOOGLE_PROVIDER, null);
         providers.add(drive);
-        DropboxProvider dropbox = new DropboxProvider();
+        DropboxProvider dropbox = new DropboxProvider(Constants.DROPBOX_PROVIDER, null);
         providers.add(dropbox);
         for (int i = 0; i < providers.size(); i++){
             ProviderAbstract provider = providers.get(i);

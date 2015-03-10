@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import utils.Constants;
 
 /**
  * Created by raphabot on 21/12/14.
@@ -28,19 +29,8 @@ import javax.persistence.Transient;
 @Entity
 public class GoogleDriveProvider extends ProviderAbstract {
 
-    /**
-     * This is a unique client ID that must be required in the API website.
-     */
-    private static final String CLIENT_ID = "779881464379-virjjj9a2i54030sj0igfirgb14amtg9.apps.googleusercontent.com";
-    /**
-     * This is a unique client secret that must be required in the API website.
-     */
-    private static final String CLIENT_SECRET = "-rV1gqw1mTA1GWb0J8DZmVbB";
-    /**
-     * This is a unique redirect URI that must be required in the API website.
-     */
-    private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
-
+    
+    
     /**
      * Global instance of the HTTP transport.
      */
@@ -59,30 +49,28 @@ public class GoogleDriveProvider extends ProviderAbstract {
     @Transient
     private static JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-    /** */
-    private String token;
-
     @Transient
     private GoogleAuthorizationCodeFlow flow;
 
-    public GoogleDriveProvider() {
+    public GoogleDriveProvider(int providerType, String clientID) {
+        super(providerType, clientID);
         /** Builds an authorization flow.*/
-        flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, CLIENT_ID, CLIENT_SECRET, Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
+        flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
 
 
     }
 
     @Override
     public String getLoginURL() {
-        String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+        String url = flow.newAuthorizationUrl().setRedirectUri(this.getRedirectURL()).build();
         return url;
     }
 
     @Override
     public Boolean setToken(String token) {
-        this.token = token;
+        this.setToken(token);
         try {
-            GoogleTokenResponse response = flow.newTokenRequest(token).setRedirectUri(REDIRECT_URI).execute();
+            GoogleTokenResponse response = flow.newTokenRequest(this.getToken()).setRedirectUri(this.getRedirectURL()).execute();
             GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
 
             //Create a new authorized API client
@@ -92,14 +80,6 @@ public class GoogleDriveProvider extends ProviderAbstract {
         }
 
         return true;
-    }
-
-    @Override
-    public String getToken() {
-        if (this.token.isEmpty()) {
-            return "-1";
-        }
-        return this.token;
     }
 
     @Override

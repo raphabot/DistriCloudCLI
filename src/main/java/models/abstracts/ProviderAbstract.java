@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import sun.misc.JavaAWTAccess;
+import utils.Constants;
 
 /**
  * Created by raphabot on 21/12/14.
@@ -21,20 +23,72 @@ public abstract class ProviderAbstract {
     @Id
     @GeneratedValue
     protected Long idProvider;
+    
+    /**
+     * This integer represents the type of provider the class represents.
+     */
+    public int providerType;
     /**
      * This is a unique client ID that must be required in the API website.
      */
-    private String client_Id;
+    private String appID;
+    
     /**
      * This is a unique client secret that must be required in the API website.
      */
-    private String CLIENT_SECRET;
+    private String appSecret;
+    
     /**
      * This is a unique redirect URI that must be required in the API website.
      */
-    private String REDIRECT_URI;
+    private String redirectURL;
+    
+    private String token;
 
+    
+    /**
+     * Default ProviderAbstract Constructor
+     * @param providerType
+     * @param clientID
+     * @param clientSecret
+     * @param redirectURL 
+     */
+    public ProviderAbstract(int providerType, String clientID) {
+        this.providerType = providerType;
+        switch (providerType){
+            case Constants.GOOGLE_PROVIDER:
+                this.appID = "779881464379-virjjj9a2i54030sj0igfirgb14amtg9.apps.googleusercontent.com";
+                this.appSecret = "-rV1gqw1mTA1GWb0J8DZmVbB";
+                this.redirectURL = "urn:ietf:wg:oauth:2.0:oob";
+                break;
+            case (Constants.DROPBOX_PROVIDER):
+                this.appID = "zyulddisxwf26u5";
+                this.appSecret = "gz0hgjw5ulo853o";
+                this.redirectURL = "urn:ietf:wg:oauth:2.0:oob";
+                break;
+            default:
+                break;
+        }
+             
+    }
 
+    public int getProviderType() {
+        return providerType;
+    }
+
+    public String getAppID() {
+        return appID;
+    }
+
+    public String getAppSecret() {
+        return appSecret;
+    }
+
+    public String getRedirectURL() {
+        return redirectURL;
+    }
+
+    
     /**
      * This method returns the website link that the application's user must access in order to allow access to the provider
      * @return website link
@@ -52,7 +106,12 @@ public abstract class ProviderAbstract {
      * This method will return the token from the database.
      * @return token, if it is available. -1 otherwise
      */
-    abstract public String getToken();
+    public String getToken(){
+        if (this.token.isEmpty()){
+            return "-1";
+        }
+        return this.getToken();
+    }
 
     /**
      * This method will upload a file to the provider.

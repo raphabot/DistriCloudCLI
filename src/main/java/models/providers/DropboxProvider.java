@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import utils.Constants;
 
 /**
  * Created by raphabot on 22/12/14.
@@ -15,21 +16,7 @@ import javax.persistence.Transient;
 @Entity
 public class DropboxProvider extends ProviderAbstract {
 
-    /**
-     * This is a unique client ID that must be required in the API website.
-     */
-    private static final String APP_KEY = "zyulddisxwf26u5";
-    /**
-     * This is a unique client secret that must be required in the API website.
-     */
-    private static final String APP_SECRET = "gz0hgjw5ulo853o";
-    /**
-     * This is a unique redirect URI that must be required in the API website.
-     */
-    private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
-    
-    private String token;
-
+  
     @Transient
     private DbxWebAuthNoRedirect webAuth;
     @Transient
@@ -37,8 +24,10 @@ public class DropboxProvider extends ProviderAbstract {
     @Transient
     private DbxClient client;
 
-    public DropboxProvider() {
-        DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
+    
+    public DropboxProvider(int providerType, String clientID) {
+        super(providerType, clientID);
+        DbxAppInfo appInfo = new DbxAppInfo(this.getAppID(), this.getAppSecret());
         config = new DbxRequestConfig("DistriCloud/0.1",Locale.getDefault().toString());
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
     }
@@ -59,14 +48,6 @@ public class DropboxProvider extends ProviderAbstract {
         }catch (DbxException e){return false;}
 
         return true;
-    }
-
-    @Override
-    public String getToken() {
-        if (this.token.isEmpty()){
-            return "-1";
-        }
-        return this.token;
     }
 
     @Override
