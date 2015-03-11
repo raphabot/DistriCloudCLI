@@ -5,14 +5,14 @@
  */
 package com.rbottino.distcloudcli;
 
+import DAO.ProviderDAO;
+import DAO.Utils.UtilsDAO;
 import models.abstracts.ProviderAbstract;
 import models.logic.Core;
 import models.providers.DropboxProvider;
 import models.providers.GoogleDriveProvider;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import javax.persistence.EntityManager;
@@ -23,6 +23,12 @@ import utils.Constants;
 public class Main {
 
     public static void main(String[] args) {
+        
+        //UtilsDAO.openCurrentSession();
+        ProviderDAO pDAO = new ProviderDAO();
+        ProviderAbstract pa = (ProviderAbstract) pDAO.findById(0);
+        System.out.println(pa.getIdProvider().toString());
+        UtilsDAO.closeCurrentSession();
         
         DropboxProvider dbp = new DropboxProvider(Constants.DROPBOX_PROVIDER, null);
         dbp.setToken("test");
