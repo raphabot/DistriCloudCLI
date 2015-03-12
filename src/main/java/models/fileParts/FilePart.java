@@ -5,6 +5,7 @@
  */
 package models.fileParts;
 
+import javax.persistence.Entity;
 import models.abstracts.FilePartAbstract;
 import models.abstracts.ProviderAbstract;
 
@@ -12,14 +13,15 @@ import models.abstracts.ProviderAbstract;
  *
  * @author developer
  */
+@Entity
 public class FilePart extends FilePartAbstract {
 
     public FilePart() {
         super();
     }
 
-    public FilePart(Long id, ProviderAbstract provider, int filePart, String remotePath) {
-        super(id, provider, filePart, remotePath);
+    public FilePart(ProviderAbstract provider, int filePart, String remotePath) {
+        super(provider, filePart, remotePath);
     }
     
     

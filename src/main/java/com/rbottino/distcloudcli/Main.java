@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import models.fileParts.FilePart;
+import services.FilePartService;
 import services.ProviderService;
 import utils.Constants;
 
@@ -24,31 +26,38 @@ public class Main {
 
     public static void main(String[] args) {
         
-        //UtilsDAO.openCurrentSession();
-        //ProviderDAO pDAO = new ProviderDAO();
-        //Long value = new Long("0");
-        //ProviderAbstract pa = (ProviderAbstract) pDAO.findById(0);
+        
         SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
+        
+        DropboxProvider dbp = new DropboxProvider(Constants.DROPBOX_PROVIDER, null);
+        dbp.setToken("test");
         ProviderService ps = new ProviderService(simpleEntityManager);
+        ps.save(dbp);
+        //EntityManagerFactory factory = Persistence.createEntityManagerFactory("hsqldb");
+        //EntityManager manager = factory.createEntityManager();
+        
+        FilePart fp = new FilePart(dbp, 0, "remote_path");
+        FilePartService fps = new FilePartService(simpleEntityManager);
+        fps.save(fp);
+        
+        /*manager.getTransaction().begin();    
+        manager.persist(dbp);
+        manager.persist(fp);
+        manager.getTransaction().commit();  
+        
+        manager.close();
+        */
+        //SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
         for (ProviderAbstract pa : ps.findAll()){
             System.out.println(pa.getIdProvider());
         }
         //System.out.println(pa.getIdProvider().toString());
         //UtilsDAO.closeCurrentSession();
         
-        DropboxProvider dbp = new DropboxProvider(Constants.DROPBOX_PROVIDER, null);
-        dbp.setToken("test");
-
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory("hsqldb");
-        EntityManager manager = factory.createEntityManager();
-
-        manager.getTransaction().begin();    
-        manager.persist(dbp);
-        manager.getTransaction().commit();  
-
+        
+        
         System.out.println("Provider/'s ID: " + dbp.getIdProvider());
 
-        manager.close();
         
         
         ArrayList<ProviderAbstract> providers = new ArrayList<ProviderAbstract>();

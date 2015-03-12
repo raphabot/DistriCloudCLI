@@ -1,12 +1,9 @@
 package models.abstracts;
 
-import java.io.File;
-import java.io.IOException;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import sun.misc.JavaAWTAccess;
 import utils.Constants;
 
 /**

@@ -1,11 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package models.abstracts;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -18,7 +14,9 @@ import javax.persistence.Table;
 @Entity
 @Table(name="FilePart")
 public abstract class FilePartAbstract {
+    
     @Id
+    @GeneratedValue
     private Long id;
 
     @OneToOne
@@ -33,8 +31,7 @@ public abstract class FilePartAbstract {
         
     }
     
-    public FilePartAbstract(Long id, ProviderAbstract provider, int filePart, String remotePath) {
-        this.id = id;
+    public FilePartAbstract(ProviderAbstract provider, int filePart, String remotePath) {
         this.provider = provider;
         this.filePart = filePart;
         this.remotePath = remotePath;
