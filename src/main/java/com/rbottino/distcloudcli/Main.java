@@ -42,9 +42,7 @@ public class Main {
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("hsqldb");
         EntityManager manager = factory.createEntityManager();
 
-        manager.getTransaction().begin();    
-        manager.persist(dbp);
-        manager.getTransaction().commit();  
+        ps.save(dbp);
 
         System.out.println("Provider/'s ID: " + dbp.getIdProvider());
 

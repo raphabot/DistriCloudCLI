@@ -56,8 +56,10 @@ public class GoogleDriveProvider extends ProviderAbstract {
         super(providerType, clientID);
         /** Builds an authorization flow.*/
         flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
-
-
+    }
+    
+    public GoogleDriveProvider(){
+        super();
     }
 
     @Override
