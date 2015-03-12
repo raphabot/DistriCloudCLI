@@ -71,6 +71,10 @@ public abstract class ProviderAbstract {
         }
              
     }
+    
+    public ProviderAbstract(){
+        
+    }
 
     public int getProviderType() {
         return providerType;

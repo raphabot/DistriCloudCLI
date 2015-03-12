@@ -5,8 +5,7 @@
  */
 package com.rbottino.distcloudcli;
 
-import DAO.ProviderDAO;
-import DAO.Utils.UtilsDAO;
+import DAO.Utils.SimpleEntityManager;
 import models.abstracts.ProviderAbstract;
 import models.logic.Core;
 import models.providers.DropboxProvider;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import services.ProviderService;
 import utils.Constants;
 
 public class Main {
@@ -25,10 +25,16 @@ public class Main {
     public static void main(String[] args) {
         
         //UtilsDAO.openCurrentSession();
-        ProviderDAO pDAO = new ProviderDAO();
-        ProviderAbstract pa = (ProviderAbstract) pDAO.findById(0);
-        System.out.println(pa.getIdProvider().toString());
-        UtilsDAO.closeCurrentSession();
+        //ProviderDAO pDAO = new ProviderDAO();
+        //Long value = new Long("0");
+        //ProviderAbstract pa = (ProviderAbstract) pDAO.findById(0);
+        SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
+        ProviderService ps = new ProviderService(simpleEntityManager);
+        for (ProviderAbstract pa : ps.findAll()){
+            System.out.println(pa.getIdProvider());
+        }
+        //System.out.println(pa.getIdProvider().toString());
+        //UtilsDAO.closeCurrentSession();
         
         DropboxProvider dbp = new DropboxProvider(Constants.DROPBOX_PROVIDER, null);
         dbp.setToken("test");
