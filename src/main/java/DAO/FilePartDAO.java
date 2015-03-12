@@ -7,15 +7,15 @@ package DAO;
 
 import DAO.Interfaces.GenericDAO;
 import javax.persistence.EntityManager;
-import models.abstracts.ProviderAbstract;
+import models.abstracts.FilePartAbstract;
 
 /**
  *
  * @author raphabot
  */
-public class ProviderDAO extends GenericDAO<Long, ProviderAbstract>{
+public class FilePartDAO extends GenericDAO<Long, FilePartAbstract>{
 
-    public ProviderDAO(EntityManager entityManager){
+    public FilePartDAO(EntityManager entityManager){
         super(entityManager);
     }
    

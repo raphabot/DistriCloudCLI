@@ -31,6 +31,10 @@ public class DropboxProvider extends ProviderAbstract {
         config = new DbxRequestConfig("DistriCloud/0.1",Locale.getDefault().toString());
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
     }
+    
+    public DropboxProvider(){
+        super();
+    }
 
     @Override
     public String getLoginURL() {
