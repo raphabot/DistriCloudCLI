@@ -19,4 +19,8 @@ public class CloudFile extends CloudFileAbstract {
         super(name, md5);
     }
     
+    public CloudFile(){
+        super();
+    }
+    
 }

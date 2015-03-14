@@ -34,6 +34,10 @@ public abstract class CloudFileAbstract {
         this.md5 = md5;
     }
     
+    public CloudFileAbstract(){
+        
+    }
+    
     
     public Long getId() {
         return id;

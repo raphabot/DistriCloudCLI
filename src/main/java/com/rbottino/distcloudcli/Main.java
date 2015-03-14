@@ -14,6 +14,7 @@ import models.providers.GoogleDriveProvider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -43,7 +44,7 @@ public class Main {
             System.out.println("2 - Add provider");
             System.out.println("3 - Delete a provider");
             System.out.println("4 - List files");
-            //System.out.println("5 - Uplaod file");
+            System.out.println("5 - Uplaod file");
             //System.out.println("6 - Download file");
             //System.out.println("7 - Delete file");
             System.out.println("0 - Exit");
@@ -119,6 +120,22 @@ public class Main {
                             System.out.println(cloudFile);
                         }
                         
+                        break;
+                    }
+                    
+                    case 5: 
+                    {
+                        System.out.println("Enter the absolut file path:");
+                        String filePath = br.readLine();
+                        ProviderService ps = new ProviderService(simpleEntityManager);
+                        List<ProviderAbstract> providers = ps.findAll();
+
+                        try {
+                            Core.encodeSplitUpload(filePath, providers);
+                        } catch (NoSuchAlgorithmException ex) {
+                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
                         break;
                     }
                     

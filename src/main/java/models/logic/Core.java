@@ -9,20 +9,22 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 import models.abstracts.FilePartAbstract;
 import models.file.CloudFile;
 import models.file.FilePart;
 import services.CloudFileService;
 import services.FilePartService;
+import utils.Constants;
 
 /**
  * Created by raphabot on 02/02/15.
  */
 public class Core {
 
-    private static SimpleEntityManager simpleEntityManager;
+    private static SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
     
-    public static boolean encodeSplitUpload(String filePath, ArrayList<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException{
+    public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException{
 
         //Open file
         File file = new File(filePath);

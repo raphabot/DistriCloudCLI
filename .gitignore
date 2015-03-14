@@ -22,3 +22,7 @@ database*/
 
 # Ignore nbactions.xml
 nbactions.xml
+
+# Ignore folders with original and downloaded files.
+originalFiles/
+downloadedFiles/
