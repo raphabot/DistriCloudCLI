@@ -22,7 +22,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
-import models.fileParts.FilePart;
+import models.file.FilePart;
 import services.FilePartService;
 import services.ProviderService;
 import utils.Constants;
@@ -43,7 +43,7 @@ public class Main {
             //System.out.println("5 - Uplaod file");
             //System.out.println("6 - Download file");
             //System.out.println("7 - Delete file");
-            System.out.println("8 - Exit");
+            System.out.println("0 - Exit");
 
             SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
 
