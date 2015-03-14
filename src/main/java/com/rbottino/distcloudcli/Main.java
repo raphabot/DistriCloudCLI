@@ -145,14 +145,16 @@ public class Main {
                         break;
                 }
                 
-                if (code != 0){
-                    code = -1;
-                }
+                
             } 
             catch (IOException e) {
                 printStackTrace(e);
             }
 
+            if (code != 0){
+                code = -1;
+            }
+            
         }
         
  

@@ -27,9 +27,7 @@ public class DropboxProvider extends ProviderAbstract {
     
     public DropboxProvider(int providerType, String clientID) {
         super(providerType, clientID);
-        DbxAppInfo appInfo = new DbxAppInfo(this.getAppID(), this.getAppSecret());
-        config = new DbxRequestConfig("DistriCloud/0.1",Locale.getDefault().toString());
-        webAuth = new DbxWebAuthNoRedirect(config, appInfo);
+        
     }
     
     public DropboxProvider(String clienttID){
@@ -99,6 +97,18 @@ public class DropboxProvider extends ProviderAbstract {
     @Override
     public Long getIdProvider() {
         return this.idProvider;
+    }
+    
+    @Override
+    public void providerSetup(){
+        this.setAppID("zyulddisxwf26u5");
+        this.setAppSecret("gz0hgjw5ulo853o");
+        this.setRedirectURL("urn:ietf:wg:oauth:2.0:oob");
+        
+        
+        DbxAppInfo appInfo = new DbxAppInfo(this.getAppID(), this.getAppSecret());
+        config = new DbxRequestConfig("DistriCloud/0.1",Locale.getDefault().toString());
+        webAuth = new DbxWebAuthNoRedirect(config, appInfo);
     }
 }
 

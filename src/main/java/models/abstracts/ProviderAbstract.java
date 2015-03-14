@@ -10,9 +10,8 @@ import utils.Constants;
 /**
  * Created by raphabot on 21/12/14.
  */
-
 @Entity
-@Table(name="Provider")
+@Table(name = "Provider")
 public abstract class ProviderAbstract {
 
     /**
@@ -21,62 +20,51 @@ public abstract class ProviderAbstract {
     @Id
     @GeneratedValue
     protected Long idProvider;
-    
+
     /**
      * This integer represents the type of provider the class represents.
      */
     public int providerType;
-    
+
     /**
      * This is a unique client ID that must be required in the API website.
      */
     @Transient
     private String appID;
-    
+
     /**
      * This is a unique client secret that must be required in the API website.
      */
     @Transient
     private String appSecret;
-    
+
     /**
      * This is a unique redirect URI that must be required in the API website.
      */
     @Transient
     private String redirectURL;
-    
+
     private String token;
 
-    
     /**
      * Default ProviderAbstract Constructor
+     *
      * @param providerType
      * @param clientID
      * @param clientSecret
-     * @param redirectURL 
+     * @param redirectURL
      */
     public ProviderAbstract(int providerType, String clientID) {
         this.providerType = providerType;
-        switch (providerType){
-            case Constants.GOOGLE_PROVIDER:
-                this.appID = "779881464379-virjjj9a2i54030sj0igfirgb14amtg9.apps.googleusercontent.com";
-                this.appSecret = "-rV1gqw1mTA1GWb0J8DZmVbB";
-                this.redirectURL = "urn:ietf:wg:oauth:2.0:oob";
-                break;
-            case (Constants.DROPBOX_PROVIDER):
-                this.appID = "zyulddisxwf26u5";
-                this.appSecret = "gz0hgjw5ulo853o";
-                this.redirectURL = "urn:ietf:wg:oauth:2.0:oob";
-                break;
-            default:
-                break;
-        }
-             
+        providerSetup();
+    }
+
+    public ProviderAbstract() {
+        providerSetup();
+
     }
     
-    public ProviderAbstract(){
-        
-    }
+    abstract public void providerSetup();
 
     public int getProviderType() {
         return providerType;
@@ -98,16 +86,37 @@ public abstract class ProviderAbstract {
         this.token = token;
     }
 
-    
-    
+    public void setIdProvider(Long idProvider) {
+        this.idProvider = idProvider;
+    }
+
+    public void setProviderType(int providerType) {
+        this.providerType = providerType;
+    }
+
+    public void setAppID(String appID) {
+        this.appID = appID;
+    }
+
+    public void setAppSecret(String appSecret) {
+        this.appSecret = appSecret;
+    }
+
+    public void setRedirectURL(String redirectURL) {
+        this.redirectURL = redirectURL;
+    }
+
     /**
-     * This method returns the website link that the application's user must access in order to allow access to the provider
+     * This method returns the website link that the application's user must
+     * access in order to allow access to the provider
+     *
      * @return website link
      */
     abstract public String getLoginURL();
 
     /**
      * This method will validate the token with the provider.
+     *
      * @param token token
      * @return true if it succeed, false otherwise
      */
@@ -115,10 +124,11 @@ public abstract class ProviderAbstract {
 
     /**
      * This method will return the token from the database.
+     *
      * @return token, if it is available. -1 otherwise
      */
-    public String getToken(){
-        if (this.token.isEmpty()){
+    public String getToken() {
+        if (this.token.isEmpty()) {
             return "-1";
         }
         return this.token;
@@ -126,6 +136,7 @@ public abstract class ProviderAbstract {
 
     /**
      * This method will upload a file to the provider.
+     *
      * @param filePath file path
      * @param title title of the file
      * @return the path or id on where to download the file
@@ -134,14 +145,16 @@ public abstract class ProviderAbstract {
 
     /**
      * This method will download a file from the provider
+     *
      * @param localFilePath where the file will be saved
      * @param remoteFilePath file path of remote file
      * @return true if the download succeed, false otherwise
      */
     abstract public boolean downloadFile(String localFilePath, String remoteFilePath);
-    
+
     /**
      * This method will return the provider Id
+     *
      * @return provider Id
      */
     abstract public Long getIdProvider();
@@ -150,7 +163,7 @@ public abstract class ProviderAbstract {
     public String toString() {
         return "ID: " + this.idProvider + " Provider Type: " + this.providerType + " Token: " + this.token;
     }
-    
+
     
 
 }

@@ -29,13 +29,11 @@ import utils.Constants;
 @Entity
 public class GoogleDriveProvider extends ProviderAbstract {
 
-    
-    
     /**
      * Global instance of the HTTP transport.
      */
     @Transient
-    private HttpTransport httpTransport = new NetHttpTransport();
+    private HttpTransport httpTransport;
 
     /**
      * Global Drive API client.
@@ -54,16 +52,15 @@ public class GoogleDriveProvider extends ProviderAbstract {
 
     public GoogleDriveProvider(int providerType, String clientID) {
         super(providerType, clientID);
-        /** Builds an authorization flow.*/
-        flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
     }
-    
-    public GoogleDriveProvider(String clienttID){
+
+    public GoogleDriveProvider(String clienttID) {
         this(utils.Constants.GOOGLE_PROVIDER, clienttID);
     }
-    
-    public GoogleDriveProvider(){
+
+    public GoogleDriveProvider() {
         super();
+        //flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
     }
 
     @Override
@@ -130,9 +127,23 @@ public class GoogleDriveProvider extends ProviderAbstract {
         }
         return false;
     }
-    
+
     @Override
     public Long getIdProvider() {
         return this.idProvider;
+    }
+
+    @Override
+    public void providerSetup() {
+        this.setAppID("779881464379-virjjj9a2i54030sj0igfirgb14amtg9.apps.googleusercontent.com");
+        this.setAppSecret("-rV1gqw1mTA1GWb0J8DZmVbB");
+        this.setRedirectURL("urn:ietf:wg:oauth:2.0:oob");
+
+        /**
+         * Builds an authorization flow.
+         */
+        this.httpTransport = new NetHttpTransport();
+        flow = new GoogleAuthorizationCodeFlow.Builder(this.httpTransport, this.jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
+
     }
 }

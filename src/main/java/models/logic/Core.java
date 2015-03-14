@@ -3,10 +3,8 @@ package models.logic;
 import DAO.Utils.SimpleEntityManager;
 import models.abstracts.ProviderAbstract;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
