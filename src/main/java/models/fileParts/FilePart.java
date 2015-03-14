@@ -20,8 +20,8 @@ public class FilePart extends FilePartAbstract {
         super();
     }
 
-    public FilePart(ProviderAbstract provider, int filePart, String remotePath) {
-        super(provider, filePart, remotePath);
+    public FilePart(ProviderAbstract provider, int filePart, String remotePath, String hash) {
+        super(provider, filePart, remotePath, hash);
     }
     
     

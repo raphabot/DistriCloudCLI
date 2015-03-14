@@ -5,6 +5,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import sun.security.provider.MD5;
 
 /**
  *
@@ -26,15 +27,18 @@ public abstract class FilePartAbstract {
     
     private String remotePath;
     
+    private String md5;
+    
     
     public FilePartAbstract() {
         
     }
     
-    public FilePartAbstract(ProviderAbstract provider, int filePart, String remotePath) {
+    public FilePartAbstract(ProviderAbstract provider, int filePart, String remotePath, String md5) {
         this.provider = provider;
         this.filePart = filePart;
         this.remotePath = remotePath;
+        this.md5 = md5;
     }
     
     public Long getId() {

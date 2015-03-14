@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import utils.Constants;
 
 /**
@@ -25,19 +26,23 @@ public abstract class ProviderAbstract {
      * This integer represents the type of provider the class represents.
      */
     public int providerType;
+    
     /**
      * This is a unique client ID that must be required in the API website.
      */
+    @Transient
     private String appID;
     
     /**
      * This is a unique client secret that must be required in the API website.
      */
+    @Transient
     private String appSecret;
     
     /**
      * This is a unique redirect URI that must be required in the API website.
      */
+    @Transient
     private String redirectURL;
     
     private String token;
@@ -89,6 +94,11 @@ public abstract class ProviderAbstract {
         return redirectURL;
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    
     
     /**
      * This method returns the website link that the application's user must access in order to allow access to the provider
@@ -97,11 +107,11 @@ public abstract class ProviderAbstract {
     abstract public String getLoginURL();
 
     /**
-     * This method will try to save the token in the database.
+     * This method will validate the token with the provider.
      * @param token token
      * @return true if it succeed, false otherwise
      */
-    abstract public Boolean setToken(String token);
+    abstract public Boolean validateToken(String token);
 
     /**
      * This method will return the token from the database.
@@ -111,7 +121,7 @@ public abstract class ProviderAbstract {
         if (this.token.isEmpty()){
             return "-1";
         }
-        return this.getToken();
+        return this.token;
     }
 
     /**
@@ -135,5 +145,12 @@ public abstract class ProviderAbstract {
      * @return provider Id
      */
     abstract public Long getIdProvider();
+
+    @Override
+    public String toString() {
+        return "ID: " + this.idProvider + " Provider Type: " + this.providerType + " Token: " + this.token;
+    }
+    
+    
 
 }

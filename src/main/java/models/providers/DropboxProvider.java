@@ -32,6 +32,10 @@ public class DropboxProvider extends ProviderAbstract {
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
     }
     
+    public DropboxProvider(String clienttID){
+        this(utils.Constants.DROPBOX_PROVIDER, clienttID);
+    }
+    
     public DropboxProvider(){
         super();
     }
@@ -42,7 +46,8 @@ public class DropboxProvider extends ProviderAbstract {
     }
 
     @Override
-    public Boolean setToken(String token) {
+    public Boolean validateToken(String token) {
+        
         try{
             // This will fail if the user enters an invalid authorization code.
             DbxAuthFinish authFinish = webAuth.finish(token);

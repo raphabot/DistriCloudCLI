@@ -58,6 +58,10 @@ public class GoogleDriveProvider extends ProviderAbstract {
         flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
     }
     
+    public GoogleDriveProvider(String clienttID){
+        this(utils.Constants.GOOGLE_PROVIDER, clienttID);
+    }
+    
     public GoogleDriveProvider(){
         super();
     }
@@ -69,8 +73,7 @@ public class GoogleDriveProvider extends ProviderAbstract {
     }
 
     @Override
-    public Boolean setToken(String token) {
-        this.setToken(token);
+    public Boolean validateToken(String token) {
         try {
             GoogleTokenResponse response = flow.newTokenRequest(this.getToken()).setRedirectUri(this.getRedirectURL()).execute();
             GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
