@@ -70,6 +70,11 @@ public abstract class CloudFileAbstract {
     public void addFilePart(FilePartAbstract filePart){
         this.fileParts.add(filePart);
     }
+
+    @Override
+    public String toString() {
+        return "Id: " + this.id + " Name: " + this.name + " MD5: " + this.md5;
+    }
     
     
 }

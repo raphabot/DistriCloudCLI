@@ -22,7 +22,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
+import models.abstracts.CloudFileAbstract;
+import models.file.CloudFile;
 import models.file.FilePart;
+import services.CloudFileService;
 import services.FilePartService;
 import services.ProviderService;
 import utils.Constants;
@@ -39,7 +42,7 @@ public class Main {
             System.out.println("1 - List providers");
             System.out.println("2 - Add provider");
             System.out.println("3 - Delete a provider");
-            //System.out.println("4 - List files");
+            System.out.println("4 - List files");
             //System.out.println("5 - Uplaod file");
             //System.out.println("6 - Download file");
             //System.out.println("7 - Delete file");
@@ -103,8 +106,22 @@ public class Main {
                         
                         ProviderService ps = new ProviderService(simpleEntityManager);
                         ps.delete(code);
+                        
+                        break;
                     }
                         
+                    case 4:
+                    {
+                        CloudFileService cfs = new CloudFileService(simpleEntityManager);
+                        List<CloudFileAbstract> cloudFiles = cfs.findAll();
+                        
+                        for (CloudFileAbstract cloudFile : cloudFiles){
+                            System.out.println(cloudFile);
+                        }
+                        
+                        break;
+                    }
+                    
                     case 0:
                         break;
                     default:
