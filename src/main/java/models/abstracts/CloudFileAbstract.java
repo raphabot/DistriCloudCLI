@@ -1,6 +1,6 @@
 package models.abstracts;
 
-import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -23,7 +23,7 @@ public abstract class CloudFileAbstract {
     private Long id;
 
     @OneToMany
-    private ArrayList<FilePartAbstract> fileParts;
+    private List<FilePartAbstract> fileParts;
     
     private String name;
     
@@ -43,11 +43,11 @@ public abstract class CloudFileAbstract {
         this.id = id;
     }
 
-    public ArrayList<FilePartAbstract> getFileParts() {
+    public List<FilePartAbstract> getFileParts() {
         return fileParts;
     }
 
-    public void setFileParts(ArrayList<FilePartAbstract> fileParts) {
+    public void setFileParts(List<FilePartAbstract> fileParts) {
         this.fileParts = fileParts;
     }
 
