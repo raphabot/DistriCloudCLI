@@ -41,4 +41,23 @@ public class ProviderService {
         return dao.findAll();
     }
     
+    public boolean delete(long id){
+        ProviderAbstract provider = this.getById(id);
+        try{
+            simpleEntityManager.beginTransaction();
+            dao.delete(provider);
+            simpleEntityManager.commit();
+        }catch(Exception e){
+            e.printStackTrace();
+            simpleEntityManager.rollBack();
+            return false;
+        }
+        return true;
+    }
+    
+    public ProviderAbstract getById(long id){
+        ProviderAbstract provider = dao.getById(id);
+        return provider;
+    }
+    
 }

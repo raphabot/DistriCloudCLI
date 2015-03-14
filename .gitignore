@@ -19,3 +19,6 @@ target/
 
 # Ignore database folder
 database*/
+
+# Ignore nbactions.xml
+nbactions.xml

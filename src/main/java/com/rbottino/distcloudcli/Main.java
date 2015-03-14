@@ -39,10 +39,10 @@ public class Main {
             System.out.println("1 - List providers");
             System.out.println("2 - Add provider");
             System.out.println("3 - Delete a provider");
-            System.out.println("4 - List files");
-            System.out.println("5 - Uplaod file");
-            System.out.println("6 - Download file");
-            System.out.println("7 - Delete file");
+            //System.out.println("4 - List files");
+            //System.out.println("5 - Uplaod file");
+            //System.out.println("6 - Download file");
+            //System.out.println("7 - Delete file");
             System.out.println("8 - Exit");
 
             SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
@@ -94,6 +94,15 @@ public class Main {
                         ps.save(provider);
                         
                         break;
+                    }
+                    
+                    case 3:
+                    {
+                        System.out.println("Enter the id to delete:");
+                        code = Integer.parseInt(br.readLine());
+                        
+                        ProviderService ps = new ProviderService(simpleEntityManager);
+                        ps.delete(code);
                     }
                         
                     case 0:
