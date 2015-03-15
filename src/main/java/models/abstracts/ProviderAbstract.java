@@ -140,6 +140,7 @@ public abstract class ProviderAbstract {
      * @param filePath file path
      * @param title title of the file
      * @return the path or id on where to download the file
+     * @throws java.lang.Exception
      */
     abstract public String uploadFile(String filePath, String title) throws Exception;
 

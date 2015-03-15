@@ -41,4 +41,9 @@ public class CloudFileService {
         return dao.findAll();
     }
     
+    public CloudFileAbstract getById(long id){
+        CloudFileAbstract cloudFile = dao.getById(id);
+        return cloudFile;
+    }
+    
 }
