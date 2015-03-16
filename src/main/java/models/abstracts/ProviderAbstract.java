@@ -46,26 +46,13 @@ public abstract class ProviderAbstract {
 
     private String token;
 
-    /**
-     * Default ProviderAbstract Constructor
-     *
-     * @param providerType
-     * @param clientID
-     * @param clientSecret
-     * @param redirectURL
-     */
-    public ProviderAbstract(int providerType, String clientID) {
-        this.providerType = providerType;
-        providerSetup();
-    }
+    
 
     public ProviderAbstract() {
-        providerSetup();
-
+        
     }
     
-    abstract public void providerSetup();
-
+    
     public int getProviderType() {
         return providerType;
     }
@@ -128,9 +115,6 @@ public abstract class ProviderAbstract {
      * @return token, if it is available. -1 otherwise
      */
     public String getToken() {
-        if (this.token.isEmpty()) {
-            return "-1";
-        }
         return this.token;
     }
 
@@ -160,10 +144,14 @@ public abstract class ProviderAbstract {
      */
     abstract public Long getIdProvider();
 
+    abstract public void setup();
+    
     @Override
     public String toString() {
         return "ID: " + this.idProvider + " Provider Type: " + this.providerType + " Token: " + this.token;
     }
+
+    
 
     
 

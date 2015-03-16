@@ -72,13 +72,13 @@ public class Main {
                         switch (code){
                             case utils.Constants.GOOGLE_PROVIDER:
                             {
-                                provider = new GoogleDriveProvider("teste@teste.com");
+                                provider = new GoogleDriveProvider();
                                 break;
                             }
                             
                             case utils.Constants.DROPBOX_PROVIDER:
                             {
-                                provider = new DropboxProvider("teste@teste.com");
+                                provider = new DropboxProvider();
                                 break;
                             }
                             
@@ -88,6 +88,7 @@ public class Main {
                                 break;
                             }
                         }
+                        //provider.setup();
                         String url = provider.getLoginURL();
                         System.out.println("Enter the following link in your browser and paste the token here:");
                         System.out.println(url);

@@ -1,6 +1,8 @@
 package models.providers;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.FileContent;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
 import utils.Constants;
 
 /**
@@ -50,17 +53,18 @@ public class GoogleDriveProvider extends ProviderAbstract {
     @Transient
     private GoogleAuthorizationCodeFlow flow;
 
-    public GoogleDriveProvider(int providerType, String clientID) {
-        super(providerType, clientID);
-    }
-
-    public GoogleDriveProvider(String clienttID) {
-        this(utils.Constants.GOOGLE_PROVIDER, clienttID);
-    }
-
     public GoogleDriveProvider() {
         super();
-        //flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
+        this.providerType = utils.Constants.GOOGLE_PROVIDER;
+        this.setAppID("779881464379-virjjj9a2i54030sj0igfirgb14amtg9.apps.googleusercontent.com");
+        this.setAppSecret("-rV1gqw1mTA1GWb0J8DZmVbB");
+        this.setRedirectURL("urn:ietf:wg:oauth:2.0:oob");
+
+        /**
+         * Builds an authorization flow.
+         */
+        flow = this.getFlow();
+        
     }
 
     @Override
@@ -70,14 +74,22 @@ public class GoogleDriveProvider extends ProviderAbstract {
     }
 
     @Override
-    public Boolean validateToken(String token) {
+    public Boolean validateToken(String code) {
         try {
-            GoogleTokenResponse response = flow.newTokenRequest(this.getToken()).setRedirectUri(this.getRedirectURL()).execute();
-            GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
+            GoogleTokenResponse response = flow.newTokenRequest(code).setRedirectUri(this.getRedirectURL()).execute();
+            GoogleCredential credential = new GoogleCredential.Builder().setTransport(httpTransport)
+                    .setJsonFactory(jsonFactory)
+                    .setClientSecrets(this.getAppID(), this.getAppSecret())
+                    .build()
+                    .setFromTokenResponse(response);
+            //Change the code to refreshToken.
+            this.setToken(credential.getRefreshToken());
+            //GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
 
             //Create a new authorized API client
             drive = new Drive.Builder(httpTransport, jsonFactory, credential).build();
         } catch (IOException e) {
+            printStackTrace(e);
             return false;
         }
 
@@ -86,6 +98,17 @@ public class GoogleDriveProvider extends ProviderAbstract {
 
     @Override
     public String uploadFile(String filePath, String title) throws IOException {
+
+        GoogleTokenResponse response = flow.newTokenRequest(this.getToken()).setRedirectUri(this.getRedirectURL()).execute();
+        Credential credential = flow.createAndStoreCredential(response, null);
+        //credential.re
+        //GoogleCredential credential = ;
+        //Change the code to refreshToken.
+        this.setToken(credential.getRefreshToken());
+            //GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
+
+        //Create a new authorized API client
+        drive = new Drive.Builder(httpTransport, jsonFactory, credential).build();
 
         //Insert a file
         File body = new File();
@@ -134,16 +157,25 @@ public class GoogleDriveProvider extends ProviderAbstract {
     }
 
     @Override
-    public void providerSetup() {
-        this.setAppID("779881464379-virjjj9a2i54030sj0igfirgb14amtg9.apps.googleusercontent.com");
-        this.setAppSecret("-rV1gqw1mTA1GWb0J8DZmVbB");
-        this.setRedirectURL("urn:ietf:wg:oauth:2.0:oob");
-
-        /**
-         * Builds an authorization flow.
-         */
-        this.httpTransport = new NetHttpTransport();
-        flow = new GoogleAuthorizationCodeFlow.Builder(this.httpTransport, this.jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE)).setAccessType("online").setApprovalPrompt("auto").build();
+    public void setup() {
+        String possibleToken = this.getToken();
+        if (possibleToken != null) {
+            this.validateToken(possibleToken);
+        }
 
     }
+    
+    private GoogleAuthorizationCodeFlow getFlow() {
+    if (flow == null) {
+      httpTransport = new NetHttpTransport();
+      jsonFactory = new JacksonFactory();
+      
+      flow =
+          new GoogleAuthorizationCodeFlow.Builder(this.httpTransport, this.jsonFactory, this.getAppID(), this.getAppSecret(), Arrays.asList(DriveScopes.DRIVE_FILE))
+              .setAccessType("offline").setApprovalPrompt("force").build();
+    }
+    return flow;
+  }
+
+
 }

@@ -44,6 +44,7 @@ public class Core {
         //Iterate over each splitted file
         for (int i = 0; i < numParts; i++) {
             ProviderAbstract provider = providers.get(i);
+            //provider.setup();
 
             String partFilePath = filePath + ".part." + i;
 
@@ -79,7 +80,7 @@ public class Core {
         int i = 0;
         for (FilePartAbstract filePart : fileParts) {
             ProviderAbstract provider = filePart.getProvider();
-            String filePartName = fileName + ".part" + i;
+            String filePartName = fileName + ".part." + i;
             provider.downloadFile(filePartName, filePart.getRemotePath());
             i++;
         }

@@ -1,5 +1,7 @@
 package models.abstracts;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,6 +32,7 @@ public abstract class CloudFileAbstract {
     public CloudFileAbstract(String name, String md5) {
         this.name = name;
         this.md5 = md5;
+        this.fileParts = new ArrayList<>();
     }
     
     public CloudFileAbstract(){
