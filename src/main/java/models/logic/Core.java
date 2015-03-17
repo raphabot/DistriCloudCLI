@@ -6,7 +6,6 @@ import models.abstracts.ProviderAbstract;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 import models.abstracts.CloudFileAbstract;
 import models.abstracts.FilePartAbstract;
@@ -70,10 +69,9 @@ public class Core {
         return true;
     }
 
-    public static boolean downloadMergeDecode(CloudFileAbstract cloudFile) {
+    public static boolean downloadMergeDecode(CloudFileAbstract cloudFile) throws NoSuchAlgorithmException, IOException {
 
         List<FilePartAbstract> fileParts = cloudFile.getFileParts();
-        int numParts = fileParts.size();
         String fileName = cloudFile.getName();
 
         //Download files
@@ -83,12 +81,18 @@ public class Core {
             String filePartName = fileName + ".part." + i;
             provider.downloadFile(filePartName, filePart.getRemotePath());
             i++;
+            
+            //Check md5
+            System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.MD5Generator.generate(filePartName));
         }
 
         //Merge files
         File file = new File(fileName + ".part.0");
         Splitter splitter = new Splitter(file);
         splitter.unsplit();
+        
+        //Check md5
+        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.MD5Generator.generate(fileName));
 
         //Decode file
         return true;

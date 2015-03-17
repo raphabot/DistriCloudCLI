@@ -26,3 +26,6 @@ nbactions.xml
 # Ignore folders with original and downloaded files.
 originalFiles/
 downloadedFiles/
+
+# Ignore the UML folder
+/UML Reverse Engineer/
