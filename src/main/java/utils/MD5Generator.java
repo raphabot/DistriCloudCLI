@@ -5,9 +5,12 @@
  */
 package utils;
 
+import com.google.common.hash.Hashing;
+import com.google.common.io.BaseEncoding;
+import com.google.common.io.Files;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -21,26 +24,16 @@ import java.security.NoSuchAlgorithmException;
 public class MD5Generator {
 
     /**
-     * http://stackoverflow.com/questions/304268/getting-a-files-md5-checksum-in-java
-     * 13/03/15
-     *
+     *  Return file's MD5.
      * @param filePath the path where the file to have the md5 generated belongs.
      * @return The MD55 in String
      * @throws NoSuchAlgorithmException
      * @throws IOException
      */
     public static String generate(String filePath) throws NoSuchAlgorithmException, IOException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        try (InputStream is = Files.newInputStream(Paths.get(filePath))) {
-            DigestInputStream dis = new DigestInputStream(is, md);
-            /* Read stream to EOF as normal... */
-        }
-        byte[] digest = md.digest();
-        String toReturn = "";
-        for (byte b : digest) {
-            toReturn = toReturn + String.valueOf(b);
-        }
-        return toReturn;
+        File file = new File(filePath);
+        String md5 = BaseEncoding.base16().encode(Files.hash(file, Hashing.md5()).asBytes()).toLowerCase();
+        return md5;
     }
 
 }
