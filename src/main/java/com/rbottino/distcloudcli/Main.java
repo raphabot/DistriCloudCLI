@@ -24,8 +24,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
 import models.abstracts.CloudFileAbstract;
+import models.abstracts.JCloudProviderAbstract;
 import models.file.CloudFile;
 import models.file.FilePart;
+import models.providers.S3Provider;
 import services.CloudFileService;
 import services.FilePartService;
 import services.ProviderService;
@@ -79,6 +81,16 @@ public class Main {
                             case utils.Constants.DROPBOX_PROVIDER:
                             {
                                 provider = new DropboxProvider("teste@teste.com");
+                                break;
+                            }
+                            
+                            case utils.Constants.S3_PROVIDER:
+                            {
+                                System.out.println("Enter the AccessKey:");
+                                String acessKey = br.readLine();
+                                System.out.println("Enter the SecretKey:");
+                                String secretKey = br.readLine();
+                                provider = new S3Provider(acessKey, secretKey);
                                 break;
                             }
                             
