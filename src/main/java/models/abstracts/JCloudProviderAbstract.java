@@ -23,14 +23,14 @@ import org.jclouds.io.payloads.ByteSourcePayload;
  */
 public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
-    private String jCloudProvider = "aws-s3";
-    private String containerName = "DistriCloud";
+    private String jCloudProvider;
+    private String containerName = "districloud";
 
     public JCloudProviderAbstract() {
+        providerSetup();
     }
 
     public JCloudProviderAbstract(String appId, String appSecret) {
-        super();
         this.setAppID(appId);
         this.setAppSecret(appSecret);
         providerSetup();
@@ -43,12 +43,12 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
     @Override
     public void providerSetup() {
-        if (this.getAppID() == null || this.getAppSecret() == null){
+        if (this.getAppID() == null || this.getAppSecret() == null || this.getjCloudProvider() == null) {
             return;
         }
         else{
             // Initialize the BlobStoreContext
-            BlobStoreContext context = ContextBuilder.newBuilder(jCloudProvider)
+            BlobStoreContext context = ContextBuilder.newBuilder(this.getjCloudProvider())
                     .credentials(this.getAppID(), this.getAppSecret())
                     .buildView(BlobStoreContext.class);
 
@@ -71,6 +71,16 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
         return "press enter";
     }
 
+    public String getjCloudProvider() {
+        return jCloudProvider;
+    }
+
+    public void setjCloudProvider(String jCloudProvider) {
+        this.jCloudProvider = jCloudProvider;
+    }
+
+    
+    
     @Override
     public Boolean validateToken(String token) {
         return true;//To change body of generated methods, choose Tools | Templates.
@@ -80,6 +90,7 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
     public String uploadFile(String filePath, String title) throws Exception {
         
         String remotePath = "";
+        
         // Access the BlobStore
         try (BlobStoreContext context = ContextBuilder.newBuilder(jCloudProvider)
                 .credentials(this.getAppID(), this.getAppSecret())
@@ -89,13 +100,17 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
             // Create a Blob
             File file = new File(filePath);
+            String fileName = file.getName();
+            
             ByteSourcePayload payload = new ByteSourcePayload(Files.asByteSource(file));
-            Blob blob = blobStore.blobBuilder(filePath) // you can use folders via blobBuilder(folderName + "/sushi.jpg")
+            payload.getContentMetadata().setContentLength(file.length());
+            Blob blob = blobStore.blobBuilder(fileName) // you can use folders via blobBuilder(folderName + "/sushi.jpg")
                     .payload(payload)
                     .build();
 
             // Upload the Blob
-            remotePath = blobStore.putBlob(containerName, blob);
+            blobStore.putBlob(containerName, blob);
+            remotePath = fileName;
             payload.release();
             
             // Don't forget to close the context when you're done!

@@ -24,9 +24,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
 import models.abstracts.CloudFileAbstract;
-import models.abstracts.JCloudProviderAbstract;
 import models.file.CloudFile;
 import models.file.FilePart;
+import models.providers.MSAzureProvider;
 import models.providers.S3Provider;
 import services.CloudFileService;
 import services.FilePartService;
@@ -75,12 +75,24 @@ public class Main {
                             case utils.Constants.GOOGLE_PROVIDER:
                             {
                                 provider = new GoogleDriveProvider("teste@teste.com");
+                                String url = provider.getLoginURL();
+                                System.out.println("Enter the following link in your browser and paste the token here:");
+                                System.out.println(url);
+                                String token = br.readLine();
+                                provider.setToken(token);
+                                provider.validateToken(token);
                                 break;
                             }
                             
                             case utils.Constants.DROPBOX_PROVIDER:
                             {
                                 provider = new DropboxProvider("teste@teste.com");
+                                String url = provider.getLoginURL();
+                                System.out.println("Enter the following link in your browser and paste the token here:");
+                                System.out.println(url);
+                                String token = br.readLine();
+                                provider.setToken(token);
+                                provider.validateToken(token);
                                 break;
                             }
                             
@@ -94,18 +106,23 @@ public class Main {
                                 break;
                             }
                             
+                            case utils.Constants.MSAZURE_PROVIDER:
+                            {
+                                System.out.println("Enter the AccessKey:");
+                                String acessKey = br.readLine();
+                                System.out.println("Enter the SecretKey:");
+                                String secretKey = br.readLine();
+                                provider = new MSAzureProvider(secretKey, acessKey);
+                                break;
+                            }
+                            
                             default:
                             {
                                 System.out.println("No provider available");
                                 break;
                             }
                         }
-                        String url = provider.getLoginURL();
-                        System.out.println("Enter the following link in your browser and paste the token here:");
-                        System.out.println(url);
-                        String token = br.readLine();
-                        provider.setToken(token);
-                        provider.validateToken(token);
+                        
                         ProviderService ps = new ProviderService(simpleEntityManager);
                         ps.save(provider);
                         

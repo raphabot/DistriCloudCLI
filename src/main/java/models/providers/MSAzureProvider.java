@@ -13,20 +13,20 @@ import models.abstracts.JCloudProviderAbstract;
  * @author developer
  */
 @Entity
-public class S3Provider extends JCloudProviderAbstract{
+public class MSAzureProvider extends JCloudProviderAbstract{
 
     
    
-    public S3Provider(){
+    public MSAzureProvider(){
         super();
-        this.setjCloudProvider("aws-s3");
-        this.setAppID("AKIAJPR4VRCIQNZ6N3WA");
-        this.setAppSecret("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");
+        this.setjCloudProvider("azureblob");
+        this.setAppID("raphabot");
+        this.setAppSecret("wBLjsZHAk/XRoNSHdYY5ljvQn3eS33n4VVHcdimdebimfiQqto2pr0HvmdiG0OFUyO+rZBe7yF2UPD/xa8GUuA==");
     }
     
-    public S3Provider(String appId, String appSecret) {
+    public MSAzureProvider(String appId, String appSecret) {
         super(appId, appSecret);
-        this.setjCloudProvider("aws-s3");
+        this.setjCloudProvider("azureblob");
     }
     
     
