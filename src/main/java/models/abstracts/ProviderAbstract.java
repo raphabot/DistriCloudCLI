@@ -27,6 +27,11 @@ public abstract class ProviderAbstract {
     public int providerType;
 
     /**
+     * This String represents a account name given by the user just to identify the account.
+     */
+    private String accountName;
+    
+    /**
      * This is a unique client ID that must be required in the API website.
      */
     @Transient
@@ -54,8 +59,9 @@ public abstract class ProviderAbstract {
      * @param clientSecret
      * @param redirectURL
      */
-    public ProviderAbstract(int providerType, String clientID) {
+    public ProviderAbstract(int providerType, String accountName) {
         this.providerType = providerType;
+        this.accountName = accountName;
         providerSetup();
     }
 
@@ -105,6 +111,16 @@ public abstract class ProviderAbstract {
     public void setRedirectURL(String redirectURL) {
         this.redirectURL = redirectURL;
     }
+
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+    
+    
 
     /**
      * This method returns the website link that the application's user must

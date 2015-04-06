@@ -112,7 +112,7 @@ public class Main {
                                 String acessKey = br.readLine();
                                 System.out.println("Enter the SecretKey:");
                                 String secretKey = br.readLine();
-                                provider = new MSAzureProvider(secretKey, acessKey);
+                                provider = new MSAzureProvider(acessKey, secretKey);
                                 break;
                             }
                             

@@ -25,8 +25,7 @@ public class MSAzureProvider extends JCloudProviderAbstract{
     }
     
     public MSAzureProvider(String appId, String appSecret) {
-        super(appId, appSecret);
-        this.setjCloudProvider("azureblob");
+        super(appId, appSecret, "azureblob");
     }
     
     

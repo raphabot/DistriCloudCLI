@@ -9,6 +9,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import java.io.File;
+import javax.persistence.Entity;
 import javax.xml.ws.Service;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStore;
@@ -21,6 +22,7 @@ import org.jclouds.io.payloads.ByteSourcePayload;
  *
  * @author developer
  */
+@Entity
 public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
     private String jCloudProvider;
@@ -30,9 +32,10 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
         providerSetup();
     }
 
-    public JCloudProviderAbstract(String appId, String appSecret) {
+    public JCloudProviderAbstract(String appId, String appSecret, String jCloudProvider) {
         this.setAppID(appId);
         this.setAppSecret(appSecret);
+        this.setjCloudProvider(jCloudProvider);
         providerSetup();
     }
     

@@ -25,8 +25,7 @@ public class S3Provider extends JCloudProviderAbstract{
     }
     
     public S3Provider(String appId, String appSecret) {
-        super(appId, appSecret);
-        this.setjCloudProvider("aws-s3");
+        super(appId, appSecret, "aws-s3");
     }
     
     
