@@ -7,6 +7,7 @@ package models.providers;
 
 import javax.persistence.Entity;
 import models.abstracts.JCloudProviderAbstract;
+import utils.Constants;
 
 /**
  *
@@ -19,13 +20,12 @@ public class S3Provider extends JCloudProviderAbstract{
    
     public S3Provider(){
         super();
-        this.setjCloudProvider("aws-s3");
-        this.setAppID("AKIAJPR4VRCIQNZ6N3WA");
-        this.setAppSecret("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");
+        this.setjCloudProvider(Constants.JCLOUD_AWS_S3);
+        
     }
     
-    public S3Provider(String appId, String appSecret) {
-        super(appId, appSecret, "aws-s3");
+    public S3Provider(String identity, String credential) {
+        super(identity, credential, Constants.JCLOUD_AWS_S3);
     }
     
     

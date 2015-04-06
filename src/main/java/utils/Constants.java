@@ -18,4 +18,7 @@ public class Constants {
     
     public static final String PERSISTENCE_UNIT_NAME = "hsqldb";
     
+    public static final String JCLOUD_AWS_S3 = "aws-s3";
+    public static final String JCLOUD_MS_AZURE = "azureblob";
+    
 }

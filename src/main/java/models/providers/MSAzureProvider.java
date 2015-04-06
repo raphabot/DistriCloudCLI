@@ -7,6 +7,7 @@ package models.providers;
 
 import javax.persistence.Entity;
 import models.abstracts.JCloudProviderAbstract;
+import utils.Constants;
 
 /**
  *
@@ -19,13 +20,12 @@ public class MSAzureProvider extends JCloudProviderAbstract{
    
     public MSAzureProvider(){
         super();
-        this.setjCloudProvider("azureblob");
-        this.setAppID("raphabot");
-        this.setAppSecret("wBLjsZHAk/XRoNSHdYY5ljvQn3eS33n4VVHcdimdebimfiQqto2pr0HvmdiG0OFUyO+rZBe7yF2UPD/xa8GUuA==");
+        this.setjCloudProvider(Constants.JCLOUD_MS_AZURE);
+        
     }
     
-    public MSAzureProvider(String appId, String appSecret) {
-        super(appId, appSecret, "azureblob");
+    public MSAzureProvider(String identity, String credential) {
+        super(identity, credential, Constants.JCLOUD_MS_AZURE);
     }
     
     

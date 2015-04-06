@@ -25,16 +25,33 @@ import org.jclouds.io.payloads.ByteSourcePayload;
 @Entity
 public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
+    /**
+     * The tag used by jClouds to identify the Provider.
+     */
     private String jCloudProvider;
+    
+    /**
+     * The bucket/container name in the provider.
+     */
     private String containerName = "districloud";
+    
+    /**
+     * The identity of the provider. It depends on the provider.
+     */
+    private String identity;
+    
+    /**
+     * The provider's credential. It depends on the provider.
+     */
+    private String credential;
 
     public JCloudProviderAbstract() {
         providerSetup();
     }
 
-    public JCloudProviderAbstract(String appId, String appSecret, String jCloudProvider) {
-        this.setAppID(appId);
-        this.setAppSecret(appSecret);
+    public JCloudProviderAbstract(String identity, String credential, String jCloudProvider) {
+        this.setIdentity(identity);
+        this.setCredential(credential);
         this.setjCloudProvider(jCloudProvider);
         providerSetup();
     }
@@ -46,13 +63,13 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
     @Override
     public void providerSetup() {
-        if (this.getAppID() == null || this.getAppSecret() == null || this.getjCloudProvider() == null) {
+        if (this.getIdentity() == null || this.getCredential()== null || this.getjCloudProvider() == null) {
             return;
         }
         else{
             // Initialize the BlobStoreContext
             BlobStoreContext context = ContextBuilder.newBuilder(this.getjCloudProvider())
-                    .credentials(this.getAppID(), this.getAppSecret())
+                    .credentials(this.getIdentity(), this.getCredential())
                     .buildView(BlobStoreContext.class);
 
             // Access the BlobStore
@@ -96,7 +113,7 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
         
         // Access the BlobStore
         try (BlobStoreContext context = ContextBuilder.newBuilder(jCloudProvider)
-                .credentials(this.getAppID(), this.getAppSecret())
+                .credentials(this.getIdentity(), this.getCredential())
                 .buildView(BlobStoreContext.class)) {
             // Access the BlobStore
             BlobStore blobStore = context.getBlobStore();
@@ -133,5 +150,23 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
     public Long getIdProvider() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    public String getCredential() {
+        return credential;
+    }
+
+    public void setCredential(String credential) {
+        this.credential = credential;
+    }
+    
+    
 
 }
