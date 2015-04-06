@@ -9,6 +9,12 @@ import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.Entity;
 import javax.xml.ws.Service;
 import org.jclouds.ContextBuilder;
@@ -29,17 +35,17 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
      * The tag used by jClouds to identify the Provider.
      */
     private String jCloudProvider;
-    
+
     /**
      * The bucket/container name in the provider.
      */
     private String containerName = "districloud";
-    
+
     /**
      * The identity of the provider. It depends on the provider.
      */
     private String identity;
-    
+
     /**
      * The provider's credential. It depends on the provider.
      */
@@ -55,7 +61,7 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
         this.setjCloudProvider(jCloudProvider);
         providerSetup();
     }
-    
+
     public JCloudProviderAbstract(int providerType, String clientID) {
         super(providerType, clientID);
 
@@ -63,10 +69,9 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
     @Override
     public void providerSetup() {
-        if (this.getIdentity() == null || this.getCredential()== null || this.getjCloudProvider() == null) {
+        if (this.getIdentity() == null || this.getCredential() == null || this.getjCloudProvider() == null) {
             return;
-        }
-        else{
+        } else {
             // Initialize the BlobStoreContext
             BlobStoreContext context = ContextBuilder.newBuilder(this.getjCloudProvider())
                     .credentials(this.getIdentity(), this.getCredential())
@@ -99,8 +104,6 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
         this.jCloudProvider = jCloudProvider;
     }
 
-    
-    
     @Override
     public Boolean validateToken(String token) {
         return true;//To change body of generated methods, choose Tools | Templates.
@@ -108,9 +111,9 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
     @Override
     public String uploadFile(String filePath, String title) throws Exception {
-        
+
         String remotePath = "";
-        
+
         // Access the BlobStore
         try (BlobStoreContext context = ContextBuilder.newBuilder(jCloudProvider)
                 .credentials(this.getIdentity(), this.getCredential())
@@ -121,7 +124,7 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
             // Create a Blob
             File file = new File(filePath);
             String fileName = file.getName();
-            
+
             ByteSourcePayload payload = new ByteSourcePayload(Files.asByteSource(file));
             payload.getContentMetadata().setContentLength(file.length());
             Blob blob = blobStore.blobBuilder(fileName) // you can use folders via blobBuilder(folderName + "/sushi.jpg")
@@ -132,18 +135,50 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
             blobStore.putBlob(containerName, blob);
             remotePath = fileName;
             payload.release();
-            
+
             // Don't forget to close the context when you're done!
             context.close();
         }
 
-        
         return remotePath;
     }
 
     @Override
     public boolean downloadFile(String localFilePath, String remoteFilePath) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // Access the BlobStore
+        try (BlobStoreContext context = ContextBuilder.newBuilder(jCloudProvider)
+                .credentials(this.getIdentity(), this.getCredential())
+                .buildView(BlobStoreContext.class)) {
+            // Access the BlobStore
+            BlobStore blobStore = context.getBlobStore();
+
+            // Download the Blob
+            Blob blob = blobStore.getBlob(containerName, remoteFilePath);
+
+            // Download the Blob
+            InputStream openStream = blob.getPayload().openStream();
+            
+            // Create the local file
+            File localFile = new File(localFilePath);
+            
+            // Write to it
+            OutputStream outStream = new FileOutputStream(localFile);
+
+            byte[] buffer = new byte[8 * 1024];
+            int bytesRead;
+            while ((bytesRead = openStream.read(buffer)) != -1) {
+                outStream.write(buffer, 0, bytesRead);
+            }
+            
+
+            // Don't forget to close the context when you're done!
+            context.close();
+        } catch (IOException ex) {
+            Logger.getLogger(JCloudProviderAbstract.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -166,7 +201,5 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
     public void setCredential(String credential) {
         this.credential = credential;
     }
-    
-    
 
 }
