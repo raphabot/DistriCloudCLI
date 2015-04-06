@@ -47,7 +47,7 @@ public class Main {
             System.out.println("3 - Delete a provider");
             System.out.println("4 - List files");
             System.out.println("5 - Uplaod file");
-            //System.out.println("6 - Download file");
+            System.out.println("6 - Download file");
             //System.out.println("7 - Delete file");
             System.out.println("0 - Exit");
 
@@ -161,10 +161,24 @@ public class Main {
 
                         try {
                             Core.encodeSplitUpload(filePath, providers);
-                        } catch (NoSuchAlgorithmException ex) {
-                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (Exception e) {
+                            printStackTrace(e);
                         }
 
+                        break;
+                    }
+                    
+                    case 6: 
+                    {
+                        System.out.println("Enter the file id:");
+                        code = Integer.parseInt(br.readLine());
+                        CloudFileService cfs = new CloudFileService(simpleEntityManager);
+                        CloudFileAbstract cloudFile = cfs.getById(code);
+                        try {
+                            Core.downloadMergeDecode(cloudFile);
+                        } catch (Exception e){
+                            printStackTrace(e);
+                        }
                         break;
                     }
                     
@@ -176,7 +190,7 @@ public class Main {
                 
                 
             } 
-            catch (IOException e) {
+            catch (Exception e) {
                 printStackTrace(e);
             }
 

@@ -6,8 +6,8 @@ import models.abstracts.ProviderAbstract;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
+import models.abstracts.CloudFileAbstract;
 import models.abstracts.FilePartAbstract;
 import models.file.CloudFile;
 import models.file.FilePart;
@@ -21,22 +21,19 @@ import utils.Constants;
 public class Core {
 
     private static SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
-    
-    public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException{
+
+    public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException, Exception {
 
         //Open file
         File file = new File(filePath);
-        
+
         //Encode file
-        
-        
         //Calculate MD5
         String md5 = utils.MD5Generator.generate(filePath);
 
-        //Save to db
-        CloudFile cloudFile = new CloudFile(file.getName(), md5);
-        CloudFileService cfs = new CloudFileService(simpleEntityManager);
-        cfs.save(cloudFile);
+        //Create CloudFile
+        String fileName = file.getName();
+        CloudFile cloudFile = new CloudFile(fileName, md5);
 
         //Slipt file
         int numParts = providers.size();
@@ -44,51 +41,60 @@ public class Core {
         splitter.split(numParts);
 
         //Iterate over each splitted file
-        for (int i = 0; i < numParts; i++){
+        for (int i = 0; i < numParts; i++) {
             ProviderAbstract provider = providers.get(i);
-            try{
-                String partFilePath = filePath + ".part." + i;
-                
-                //Upload to provider
-                String remotePath = provider.uploadFile(partFilePath, "part" + i);
-                
-                //Calculate MD5
-                md5 = utils.MD5Generator.generate(partFilePath);
-                
-                //Save to db
-                FilePartAbstract filePart = new FilePart(providers.get(i), i, remotePath, md5);
-                FilePartService fps = new FilePartService(simpleEntityManager);
-                fps.save(filePart);
-                
-                
-            }
-            catch (Exception e){
-                return false;
-            }
+            //provider.setup();
+
+            String partFilePath = filePath + ".part." + i;
+
+            //Upload to provider
+            String remotePath = provider.uploadFile(partFilePath, fileName + "part" + i);
+
+            //Calculate MD5
+            md5 = utils.MD5Generator.generate(partFilePath);
+
+            //Save to db
+            FilePartAbstract filePart = new FilePart(providers.get(i), i, remotePath, md5);
+            FilePartService fps = new FilePartService(simpleEntityManager);
+            fps.save(filePart);
+
+            cloudFile.addFilePart(filePart);
+
         }
+
+        //Save to db
+        CloudFileService cfs = new CloudFileService(simpleEntityManager);
+        cfs.save(cloudFile);
+
         return true;
     }
 
-    public static boolean downloadMergeDecode(String filePath, ArrayList <String> remoteFilePaths, ArrayList<ProviderAbstract> providers){
+    public static boolean downloadMergeDecode(CloudFileAbstract cloudFile) throws NoSuchAlgorithmException, IOException {
 
-        int numParts = providers.size();
+        List<FilePartAbstract> fileParts = cloudFile.getFileParts();
+        String fileName = cloudFile.getName();
 
         //Download files
-        for (int i = 0; i < numParts; i++){
-            ProviderAbstract provider = providers.get(i);
-            try{
-                System.out.println("downloadFile: " + provider.downloadFile(filePath + ".part." + i, remoteFilePaths.get(i)));
-            }catch (Exception e){return false;}
+        int i = 0;
+        for (FilePartAbstract filePart : fileParts) {
+            ProviderAbstract provider = filePart.getProvider();
+            String filePartName = fileName + ".part." + i;
+            provider.downloadFile(filePartName, filePart.getRemotePath());
+            i++;
+            
+            //Check md5
+            System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.MD5Generator.generate(filePartName));
         }
 
         //Merge files
-        File file = new File(filePath + ".part.0");
+        File file = new File(fileName + ".part.0");
         Splitter splitter = new Splitter(file);
         splitter.unsplit();
+        
+        //Check md5
+        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.MD5Generator.generate(fileName));
 
         //Decode file
-
-
-        return false;
+        return true;
     }
 }
