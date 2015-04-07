@@ -38,6 +38,9 @@ public class Main {
     public static void main(String[] args) {
 
         int code = -1;
+        
+        SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
+        Core.setSimpleEntityManager(simpleEntityManager);
 
         while (code == -1) {
 
@@ -51,7 +54,6 @@ public class Main {
             //System.out.println("7 - Delete file");
             System.out.println("0 - Exit");
 
-            SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             try {

@@ -20,8 +20,13 @@ import utils.Constants;
  */
 public class Core {
 
-    private static SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
+    private static SimpleEntityManager simpleEntityManager;
 
+    public static void setSimpleEntityManager(SimpleEntityManager simpleEntityManager) {
+        Core.simpleEntityManager = simpleEntityManager;
+    }
+
+    
     public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException, Exception {
 
         //Open file
