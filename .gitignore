@@ -20,8 +20,9 @@ target/
 # Ignore database folder
 database*/
 
-# Ignore nbactions.xml
+# Ignore netbeans xml files
 nbactions.xml
+nb-configuration.xml
 
 # Ignore folders with original and downloaded files.
 originalFiles/

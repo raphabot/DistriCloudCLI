@@ -55,15 +55,7 @@ public class GoogleDriveProvider extends ProviderAbstract {
 
     public GoogleDriveProvider() {
         super();
-        this.providerType = utils.Constants.GOOGLE_PROVIDER;
-        this.setAppID("779881464379-virjjj9a2i54030sj0igfirgb14amtg9.apps.googleusercontent.com");
-        this.setAppSecret("-rV1gqw1mTA1GWb0J8DZmVbB");
-        this.setRedirectURL("urn:ietf:wg:oauth:2.0:oob");
-
-        /**
-         * Builds an authorization flow.
-         */
-        flow = this.getFlow();
+        
         
     }
 
@@ -157,11 +149,16 @@ public class GoogleDriveProvider extends ProviderAbstract {
     }
 
     @Override
-    public void setup() {
-        String possibleToken = this.getToken();
-        if (possibleToken != null) {
-            this.validateToken(possibleToken);
-        }
+    public void providerSetup() {
+        this.providerType = utils.Constants.GOOGLE_PROVIDER;
+        this.setAppID("779881464379-virjjj9a2i54030sj0igfirgb14amtg9.apps.googleusercontent.com");
+        this.setAppSecret("-rV1gqw1mTA1GWb0J8DZmVbB");
+        this.setRedirectURL("urn:ietf:wg:oauth:2.0:oob");
+
+        /**
+         * Builds an authorization flow.
+         */
+        flow = this.getFlow();
 
     }
     
