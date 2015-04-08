@@ -1,5 +1,7 @@
 package models.abstracts;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -180,6 +182,9 @@ public abstract class ProviderAbstract {
         return "ID: " + this.idProvider + " Provider Type: " + this.providerType + " Token: " + this.token;
     }
 
-    
+    public StringProperty getAppIdProperty(){
+        SimpleStringProperty aux = new SimpleStringProperty(appID);
+        return aux;
+    }
 
 }
