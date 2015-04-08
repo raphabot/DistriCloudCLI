@@ -61,8 +61,7 @@ public class Main {
                 switch (code) {
                     case 1:
                     {
-                        ProviderService ps = new ProviderService(simpleEntityManager);
-                        List<ProviderAbstract> providers = ps.findAll();
+                        List<ProviderAbstract> providers = Core.listProviders();
                         for (ProviderAbstract provider : providers) {
                             System.out.println(provider);
                         }
@@ -144,8 +143,7 @@ public class Main {
                         
                     case 4:
                     {
-                        CloudFileService cfs = new CloudFileService(simpleEntityManager);
-                        List<CloudFileAbstract> cloudFiles = cfs.findAll();
+                        List<CloudFileAbstract> cloudFiles = Core.listCloudFiles();
                         
                         for (CloudFileAbstract cloudFile : cloudFiles){
                             System.out.println(cloudFile);
@@ -158,8 +156,7 @@ public class Main {
                     {
                         System.out.println("Enter the absolut file path:");
                         String filePath = br.readLine();
-                        ProviderService ps = new ProviderService(simpleEntityManager);
-                        List<ProviderAbstract> providers = ps.findAll();
+                        List<ProviderAbstract> providers = Core.listProviders();
 
                         try {
                             Core.encodeSplitUpload(filePath, providers);

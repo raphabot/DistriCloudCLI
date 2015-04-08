@@ -13,6 +13,7 @@ import models.file.CloudFile;
 import models.file.FilePart;
 import services.CloudFileService;
 import services.FilePartService;
+import services.ProviderService;
 import utils.Constants;
 
 /**
@@ -26,7 +27,6 @@ public class Core {
         Core.simpleEntityManager = simpleEntityManager;
     }
 
-    
     public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException, Exception {
 
         //Open file
@@ -86,7 +86,7 @@ public class Core {
             String filePartName = fileName + ".part." + i;
             provider.downloadFile(filePartName, filePart.getRemotePath());
             i++;
-            
+
             //Check md5
             System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.MD5Generator.generate(filePartName));
         }
@@ -95,11 +95,22 @@ public class Core {
         File file = new File(fileName + ".part.0");
         Splitter splitter = new Splitter(file);
         splitter.unsplit();
-        
+
         //Check md5
         System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.MD5Generator.generate(fileName));
 
         //Decode file
         return true;
     }
+
+    public static List<ProviderAbstract> listProviders() {
+        ProviderService ps = new ProviderService(simpleEntityManager);
+        return ps.findAll();
+    }
+
+    public static List<CloudFileAbstract> listCloudFiles() {
+        CloudFileService cfs = new CloudFileService(simpleEntityManager);
+        return cfs.findAll();
+    }
+
 }
