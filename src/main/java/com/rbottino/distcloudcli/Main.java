@@ -156,8 +156,7 @@ public class Main {
                     {
                         System.out.println("Enter the absolut file path:");
                         String filePath = br.readLine();
-                        ProviderService ps = new ProviderService(simpleEntityManager);
-                        List<ProviderAbstract> providers = ps.findAll();
+                        List<ProviderAbstract> providers = Core.listProviders();
 
                         try {
                             Core.encodeSplitUpload(filePath, providers);
