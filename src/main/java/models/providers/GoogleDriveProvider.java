@@ -91,20 +91,11 @@ public class GoogleDriveProvider extends ProviderAbstract {
 
     @Override
     public String uploadFile(String filePath, String title) throws IOException {
-
-        //GoogleTokenResponse response = flow.newTokenRequest(this.getToken()).setRedirectUri(this.getRedirectURL()).execute();
-        //Credential credential = flow.createAndStoreCredential(response, null);
-        //credential.re
-        //GoogleCredential credential = ;
-        //Change the code to refreshToken.
+        //Create a new authorized API client
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setClientSecrets(this.getAppID(), this.getAppSecret())
                 .setJsonFactory(jsonFactory).setTransport(this.httpTransport).build()
                 .setRefreshToken(this.getRefreshToken()).setAccessToken(this.getToken());
-        //this.setToken(credential.getRefreshToken());
-        //GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
-
-        //Create a new authorized API client
         drive = new Drive.Builder(httpTransport, jsonFactory, credential).build();
 
         //Insert a file
@@ -122,7 +113,12 @@ public class GoogleDriveProvider extends ProviderAbstract {
 
     @Override
     public boolean downloadFile(String localFilePath, String remoteFilePath) {
-        //the filePath, in google's provider, is an id.
+        //Create a new authorized API client
+        GoogleCredential credential = new GoogleCredential.Builder()
+                .setClientSecrets(this.getAppID(), this.getAppSecret())
+                .setJsonFactory(jsonFactory).setTransport(this.httpTransport).build()
+                .setRefreshToken(this.getRefreshToken()).setAccessToken(this.getToken());
+        drive = new Drive.Builder(httpTransport, jsonFactory, credential).build();
         try {
             File file = drive.files().get(remoteFilePath).execute();
             if (file.getDownloadUrl() != null && file.getDownloadUrl().length() > 0) {
