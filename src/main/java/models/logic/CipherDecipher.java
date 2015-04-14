@@ -17,7 +17,12 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.codec.DecoderException;
+import static org.apache.commons.codec.binary.Hex.decodeHex;
 import static org.apache.commons.codec.binary.Hex.encodeHex;
+import org.apache.commons.io.FileUtils;
+import static org.apache.commons.io.FileUtils.readFileToByteArray;
 
 /**
  *
@@ -30,19 +35,26 @@ public class CipherDecipher {
         try {
             //String key = "squirrel123"; // needs to be at least 8 characters for DES
             System.out.println(utils.MD5Generator.generate("originalFiles/original"));
-            
+
             FileInputStream fis = new FileInputStream("originalFiles/original");
             FileOutputStream fos = new FileOutputStream("encrypted.txt");
             SecretKey key = generateKey();
+            keyToFile(key, "key");
             encrypt(key, fis, fos);
             System.out.println(utils.MD5Generator.generate("encrypted.txt"));
+
+            String keyString = keyToString(key);
+            System.out.println(keyString);
+            System.out.println(key);
+            key = null;
+            
+            key = stringToKey(keyString);
             
             FileInputStream fis2 = new FileInputStream("encrypted.txt");
             FileOutputStream fos2 = new FileOutputStream("decrypted.txt");
             decrypt(key, fis2, fos2);
             System.out.println(utils.MD5Generator.generate("decrypted.txt"));
-            
-            
+
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -55,12 +67,40 @@ public class CipherDecipher {
 
         return sKey;
     }
-    
-    public static boolean keyToFile(SecretKey key, String keyPath){
+
+    public static void keyToFile(SecretKey key, String keyPath) throws IOException {
         File file = new File(keyPath);
         char[] hex = encodeHex(key.getEncoded());
         FileUtils.writeStringToFile(file, String.valueOf(hex));
-        return false;
+    }
+
+    public static SecretKey fileToKey(String keyPath) throws IOException, DecoderException {
+        File keyFile = new File(keyPath);
+        String data = new String(readFileToByteArray(keyFile));
+        byte[] encoded;
+        try {
+            encoded = decodeHex(data.toCharArray());
+        } catch (DecoderException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return new SecretKeySpec(encoded, "AES");
+    }
+    
+    public static String keyToString(SecretKey key){
+        char[] hex = encodeHex(key.getEncoded());
+        return String.valueOf(hex);
+    }
+    
+    public static SecretKey stringToKey(String keyString){
+        byte[] encoded;
+        try {
+            encoded = decodeHex(keyString.toCharArray());
+        } catch (DecoderException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return new SecretKeySpec(encoded, "AES");
     }
 
     public static void encrypt(SecretKey key, InputStream is, OutputStream os) throws Throwable {
@@ -72,13 +112,7 @@ public class CipherDecipher {
     }
 
     public static void encryptOrDecrypt(SecretKey key, int mode, InputStream is, OutputStream os) throws Throwable {
-        /*
-        DESKeySpec dks = new DESKeySpec(key.getBytes());
-        SecretKeyFactory skf = SecretKeyFactory.getInstance("AES");
-        SecretKey desKey = skf.generateSecret(dks);
-        Cipher cipher = Cipher.getInstance("AES"); // DES/ECB/PKCS5Padding for SunJCE
-        */
-        Cipher cipher = Cipher.getInstance("AES");
+       Cipher cipher = Cipher.getInstance("AES");
         if (mode == Cipher.ENCRYPT_MODE) {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             CipherInputStream cis = new CipherInputStream(is, cipher);
