@@ -101,11 +101,11 @@ public class GoogleDriveProvider extends ProviderAbstract {
         //Insert a file
         File body = new File();
         body.setTitle(title);
-        body.setDescription("A test document");
-        body.setMimeType("text/plain");
+        body.setDescription("Created by DistriCloud");
+        body.setMimeType("application/octet-stream");
 
         java.io.File fileContent = new java.io.File(filePath);
-        FileContent mediaContent = new FileContent("text/plain", fileContent);
+        FileContent mediaContent = new FileContent("application/octet-stream", fileContent);
 
         File fileg = drive.files().insert(body, mediaContent).execute();
         return fileg.getId();
