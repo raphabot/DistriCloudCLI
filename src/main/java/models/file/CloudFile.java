@@ -15,8 +15,8 @@ import models.abstracts.CloudFileAbstract;
 @Entity
 public class CloudFile extends CloudFileAbstract {
 
-    public CloudFile(String name, String md5) {
-        super(name, md5);
+    public CloudFile(String name, String md5, String key) {
+        super(name, md5, key);
     }
     
     public CloudFile(){

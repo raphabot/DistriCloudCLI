@@ -4,17 +4,20 @@ import DAO.Utils.SimpleEntityManager;
 import models.abstracts.ProviderAbstract;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import javax.crypto.SecretKey;
 import models.abstracts.CloudFileAbstract;
 import models.abstracts.FilePartAbstract;
 import models.file.CloudFile;
 import models.file.FilePart;
+import org.apache.commons.lang3.RandomStringUtils;
 import services.CloudFileService;
 import services.FilePartService;
 import services.ProviderService;
-import utils.Constants;
 
 /**
  * Created by raphabot on 02/02/15.
@@ -27,19 +30,21 @@ public class Core {
         Core.simpleEntityManager = simpleEntityManager;
     }
 
-    public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException, Exception {
+    public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException, Exception, Throwable {
 
         //Open file
         File file = new File(filePath);
 
-        //Encode file
         //Calculate MD5
         String md5 = utils.MD5Generator.generate(filePath);
+        
+        //Generate a Key to encrypt the fileParts
+        SecretKey key = CipherDecipher.generateKey();
 
         //Create CloudFile
         String fileName = file.getName();
-        CloudFile cloudFile = new CloudFile(fileName, md5);
-
+        CloudFile cloudFile = new CloudFile(fileName, md5, CipherDecipher.keyToString(key));
+        
         //Slipt file
         int numParts = providers.size();
         Splitter splitter = new Splitter(file);
@@ -49,14 +54,23 @@ public class Core {
         for (int i = 0; i < numParts; i++) {
             ProviderAbstract provider = providers.get(i);
             //provider.setup();
-
-            String partFilePath = filePath + ".part." + i;
+            String partFilePathPlain = filePath + ".part." + i;
+            String partFilePathCiphered = RandomStringUtils.random(15);
+            
+            //Encode file
+            FileInputStream fis = new FileInputStream(partFilePathPlain);
+            FileOutputStream fos = new FileOutputStream(partFilePathCiphered);
+            CipherDecipher.encrypt(key, fis, fos);
 
             //Upload to provider
-            String remotePath = provider.uploadFile(partFilePath, fileName + "part" + i);
+            String remotePath = provider.uploadFile(partFilePathCiphered, partFilePathCiphered);
+            
+            //Remove temporary files
+            //new File(partFilePathCiphered).delete();
+            //new File(partFilePathPlain).delete();
 
             //Calculate MD5
-            md5 = utils.MD5Generator.generate(partFilePath);
+            md5 = utils.MD5Generator.generate(partFilePathCiphered);
 
             //Save to db
             FilePartAbstract filePart = new FilePart(providers.get(i), i, remotePath, md5);
@@ -74,21 +88,36 @@ public class Core {
         return true;
     }
 
-    public static boolean downloadMergeDecode(CloudFileAbstract cloudFile) throws NoSuchAlgorithmException, IOException {
+    public static boolean downloadMergeDecode(CloudFileAbstract cloudFile) throws NoSuchAlgorithmException, IOException, Throwable {
 
         List<FilePartAbstract> fileParts = cloudFile.getFileParts();
         String fileName = cloudFile.getName();
-
+        SecretKey key = CipherDecipher.stringToKey(cloudFile.getKey());
+        
         //Download files
         int i = 0;
         for (FilePartAbstract filePart : fileParts) {
             ProviderAbstract provider = filePart.getProvider();
-            String filePartName = fileName + ".part." + i;
-            provider.downloadFile(filePartName, filePart.getRemotePath());
-            i++;
+            String filePartNameEncrypted = fileName + ".part." + i + ".encrypted";
+            provider.downloadFile(filePartNameEncrypted, filePart.getRemotePath());
+            
 
             //Check md5
-            System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.MD5Generator.generate(filePartName));
+            System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.MD5Generator.generate(filePartNameEncrypted));
+            if (!utils.MD5Generator.generate(filePartNameEncrypted).equals(filePart.getMd5())){
+                return false;
+            }
+            
+            //Decrypt file
+            FileInputStream fis = new FileInputStream(filePartNameEncrypted);
+            String filePartNameDecrypted = fileName + ".part." + i;
+            FileOutputStream fos = new FileOutputStream(filePartNameDecrypted);
+            CipherDecipher.decrypt(key, fis , fos);
+            
+            //Remove temporary file on exit
+            //new File(filePartNameEncrypted).deleteOnExit();
+            
+            i++;
         }
 
         //Merge files

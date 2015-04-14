@@ -28,10 +28,13 @@ public abstract class CloudFileAbstract {
     private String name;
     
     private String md5;
+    
+    private String key;
 
-    public CloudFileAbstract(String name, String md5) {
+    public CloudFileAbstract(String name, String md5, String key) {
         this.name = name;
         this.md5 = md5;
+        this.key = key;
         this.fileParts = new ArrayList<>();
     }
     
@@ -72,13 +75,23 @@ public abstract class CloudFileAbstract {
         this.md5 = md5;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    
+    
     public void addFilePart(FilePartAbstract filePart){
         this.fileParts.add(filePart);
     }
 
     @Override
     public String toString() {
-        return "Id: " + this.id + " Name: " + this.name + " MD5: " + this.md5;
+        return "Id: " + this.id + " Name: " + this.name + " MD5: " + this.md5 + " Key: " + this.key;
     }
     
     

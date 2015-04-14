@@ -159,7 +159,13 @@ public class Main {
                         List<ProviderAbstract> providers = Core.listProviders();
 
                         try {
-                            Core.encodeSplitUpload(filePath, providers);
+                            try {
+                                Core.encodeSplitUpload(filePath, providers);
+                            } catch (IOException ex) {
+                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (Throwable ex) {
+                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         } catch (Exception e) {
                             printStackTrace(e);
                         }
@@ -177,7 +183,9 @@ public class Main {
                             Core.downloadMergeDecode(cloudFile);
                         } catch (Exception e){
                             printStackTrace(e);
-                        }
+                        } catch (Throwable ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                         break;
                     }
                     
