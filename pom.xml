@@ -12,6 +12,7 @@
     </properties>
     <dependencies>
         <dependency>
+            <!-- Hibernate -->
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>4.3.8.Final</version>
@@ -36,6 +37,8 @@
             <artifactId>hibernate-entitymanager</artifactId>
             <version>4.3.8.Final</version>
         </dependency>
+        
+        <!-- Google Drive -->
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
@@ -46,11 +49,14 @@
             <artifactId>google-api-services-drive</artifactId>
             <version>v2-rev165-1.20.0</version>
         </dependency>
+        
+        <!-- Dropbox -->
         <dependency>
             <groupId>com.dropbox.core</groupId>
             <artifactId>dropbox-core-sdk</artifactId>
             <version>[1.7,1.8)</version>
         </dependency>
+        
         <!-- SQLite JDBC library -->
         <dependency>
             <groupId>org.xerial</groupId>
@@ -85,6 +91,8 @@
             <version>13.0</version>
             <type>jar</type>
         </dependency>
+        
+        <!-- CipherDecipher -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -97,5 +105,14 @@
             <version>3.1</version>
             <type>jar</type>
         </dependency>
+        
+        <!-- WebDAV Sardine -->
+        <dependency>
+            <groupId>com.github.lookfirst</groupId>
+            <artifactId>sardine</artifactId>
+            <version>5.4</version>
+        </dependency>
+
+        
     </dependencies>
 </project>
