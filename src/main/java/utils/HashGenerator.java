@@ -21,16 +21,29 @@ import java.security.NoSuchAlgorithmException;
  * @author raphabot
  *
  */
-public class MD5Generator {
+public class HashGenerator {
 
     /**
-     *  Return file's MD5.
+     * Return file's MD5.
      * @param filePath the path where the file to have the md5 generated belongs.
      * @return The MD55 in String
      * @throws NoSuchAlgorithmException
      * @throws IOException
      */
-    public static String generate(String filePath) throws NoSuchAlgorithmException, IOException {
+    public static String generateSHA512(String filePath) throws NoSuchAlgorithmException, IOException {
+        File file = new File(filePath);
+        String sha512 = BaseEncoding.base16().encode(Files.hash(file, Hashing.sha512()).asBytes()).toLowerCase();
+        return sha512;
+    }
+    
+    /**
+     * Return file's MD5.
+     * @param filePath the path where the file to have the md5 generated belongs.
+     * @return The MD55 in String
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    public static String generateMD5(String filePath) throws NoSuchAlgorithmException, IOException {
         File file = new File(filePath);
         String md5 = BaseEncoding.base16().encode(Files.hash(file, Hashing.md5()).asBytes()).toLowerCase();
         return md5;

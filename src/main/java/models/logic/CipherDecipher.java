@@ -34,14 +34,14 @@ public class CipherDecipher {
     public static void main(String[] args) {
         try {
             //String key = "squirrel123"; // needs to be at least 8 characters for DES
-            System.out.println(utils.MD5Generator.generate("originalFiles/original"));
+            System.out.println(utils.HashGenerator.generateSHA512("originalFiles/original"));
 
             FileInputStream fis = new FileInputStream("originalFiles/original");
             FileOutputStream fos = new FileOutputStream("encrypted.txt");
             SecretKey key = generateKey();
             keyToFile(key, "key");
             encrypt(key, fis, fos);
-            System.out.println(utils.MD5Generator.generate("encrypted.txt"));
+            System.out.println(utils.HashGenerator.generateSHA512("encrypted.txt"));
 
             String keyString = keyToString(key);
             System.out.println(keyString);
@@ -53,7 +53,7 @@ public class CipherDecipher {
             FileInputStream fis2 = new FileInputStream("encrypted.txt");
             FileOutputStream fos2 = new FileOutputStream("decrypted.txt");
             decrypt(key, fis2, fos2);
-            System.out.println(utils.MD5Generator.generate("decrypted.txt"));
+            System.out.println(utils.HashGenerator.generateSHA512("decrypted.txt"));
 
         } catch (Throwable e) {
             e.printStackTrace();

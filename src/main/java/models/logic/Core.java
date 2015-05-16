@@ -36,7 +36,7 @@ public class Core {
         File file = new File(filePath);
 
         //Calculate MD5
-        String md5 = utils.MD5Generator.generate(filePath);
+        String md5 = utils.HashGenerator.generateSHA512(filePath);
         
         //Generate a Key to encrypt the fileParts
         SecretKey key = CipherDecipher.generateKey();
@@ -70,7 +70,7 @@ public class Core {
             //new File(partFilePathPlain).delete();
 
             //Calculate MD5
-            md5 = utils.MD5Generator.generate(partFilePathCiphered);
+            md5 = utils.HashGenerator.generateSHA512(partFilePathCiphered);
 
             //Save to db
             FilePartAbstract filePart = new FilePart(providers.get(i), i, remotePath, md5);
@@ -103,8 +103,8 @@ public class Core {
             
 
             //Check md5
-            System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.MD5Generator.generate(filePartNameEncrypted));
-            if (!utils.MD5Generator.generate(filePartNameEncrypted).equals(filePart.getMd5())){
+            System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(filePartNameEncrypted));
+            if (!utils.HashGenerator.generateSHA512(filePartNameEncrypted).equals(filePart.getMd5())){
                 return false;
             }
             
@@ -126,7 +126,7 @@ public class Core {
         splitter.unsplit();
 
         //Check md5
-        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.MD5Generator.generate(fileName));
+        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(fileName));
 
         //Decode file
         return true;
