@@ -11,7 +11,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECGenParameterSpec;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
@@ -33,27 +40,47 @@ public class CipherDecipher {
 
     public static void main(String[] args) {
         try {
-            //String key = "squirrel123"; // needs to be at least 8 characters for DES
-            System.out.println(utils.HashGenerator.generateSHA512("originalFiles/original"));
+            
+            System.out.println("Hash original: " + utils.HashGenerator.generateSHA512("originalFiles/original"));
 
+            //Gerando o par
+            KeyPair kp = publicPrivateKeyGenerator();
+            User user = new User("Nome", "a@a.com", kp.getPublic(), kp.getPrivate());
+            
+            //Gerando a chave randomica
+            SecretKey key = generateKey();
+            
+            //Encriptando o arquivo
             FileInputStream fis = new FileInputStream("originalFiles/original");
             FileOutputStream fos = new FileOutputStream("encrypted.txt");
-            SecretKey key = generateKey();
-            keyToFile(key, "key");
             encrypt(key, fis, fos);
-            System.out.println(utils.HashGenerator.generateSHA512("encrypted.txt"));
-
-            String keyString = keyToString(key);
-            System.out.println(keyString);
-            System.out.println(key);
-            key = null;
+            System.out.println("Hash encriptado: " + utils.HashGenerator.generateSHA512("encrypted.txt"));
             
-            key = stringToKey(keyString);
+            //Salvando a chave em disco
+            keyToFile(key, "key");
+            //Encriptando a chave com a chave privada
+            FileInputStream fisKey = new FileInputStream("key");
+            FileOutputStream fosKey = new FileOutputStream("encryptedKey");
+            encrypt((SecretKey) user.getPrivateKey(), fis, fos);
+            
+            //Decriptando a chave em disco
+            FileInputStream fisKey2 = new FileInputStream("encryptedKey");
+            FileOutputStream fosKey2 = new FileOutputStream("decryptedKey");
+            decrypt((SecretKey) user.getPublicKey(), fisKey2, fosKey2);
+            
+            //Zerando a chave e abrindo do arquivo
+            key = null;
+            key = fileToKey("decryptedKey");
+            
+            //String keyString = keyToString(key);
+            //System.out.println(keyString);
+            //key = null;
+            //key = stringToKey(keyString);
             
             FileInputStream fis2 = new FileInputStream("encrypted.txt");
             FileOutputStream fos2 = new FileOutputStream("decrypted.txt");
             decrypt(key, fis2, fos2);
-            System.out.println(utils.HashGenerator.generateSHA512("decrypted.txt"));
+            System.out.println("Hash Final: " + utils.HashGenerator.generateSHA512("decrypted.txt"));
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -134,5 +161,15 @@ public class CipherDecipher {
         os.close();
         is.close();
     }
+    
+    public static KeyPair publicPrivateKeyGenerator() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException{
+        //Generation
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        return kpg.genKeyPair();
+        
+    }
+    
+    
 
 }

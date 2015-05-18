@@ -141,5 +141,10 @@ public class Core {
         CloudFileService cfs = new CloudFileService(simpleEntityManager);
         return cfs.findAll();
     }
+    
+    public static boolean generatePublicKey(){
+        
+        return false;
+    }
 
 }
