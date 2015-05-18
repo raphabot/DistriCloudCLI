@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import javax.crypto.SecretKey;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import services.CloudFileService;
 import services.FilePartService;
 import services.ProviderService;
+import services.UserService;
 
 /**
  * Created by raphabot on 02/02/15.
@@ -142,9 +144,33 @@ public class Core {
         return cfs.findAll();
     }
     
-    public static boolean generatePublicKey(){
-        
+    public static User createUser(String username, String email) throws NoSuchAlgorithmException{
+        KeyPair kp = FileEncryption.generateAKeyPair();
+        User user = new User(username, email, kp.getPublic(), kp.getPrivate());
+        System.out.println(user);
+        UserService us = new UserService(simpleEntityManager);
+        us.save(user);
+        return user;
+    }
+    
+    public static User loadUser(long id){
+        UserService us = new UserService(simpleEntityManager);
+        return us.getById(id);
+    }
+    
+    public static boolean isFirstTime(){
+        UserService us = new UserService(simpleEntityManager);
+        List<User> users = us.findAll();
+        if (users.isEmpty()){
+            return true;
+        }
         return false;
+    }
+
+    public static User getLocalUser() {
+        UserService us = new UserService(simpleEntityManager);
+        List<User> users = us.findAll();
+        return users.get(0);
     }
 
 }

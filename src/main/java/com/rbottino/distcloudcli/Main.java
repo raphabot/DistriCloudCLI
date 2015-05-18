@@ -26,6 +26,7 @@ import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
 import models.abstracts.CloudFileAbstract;
 import models.file.CloudFile;
 import models.file.FilePart;
+import models.logic.User;
 import models.providers.MSAzureProvider;
 import models.providers.S3Provider;
 import services.CloudFileService;
@@ -37,10 +38,33 @@ public class Main {
 
     public static void main(String[] args) {
 
+        User user;
+        
         int code = -1;
         
         SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
         Core.setSimpleEntityManager(simpleEntityManager);
+        
+        //Checking if it is the firt run time
+        if (Core.isFirstTime()){            
+            try {
+                System.out.println("Enter username:");
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                String username = (String)br.readLine();
+                System.out.println("Enter email:");
+                br = new BufferedReader(new InputStreamReader(System.in));
+                String email = (String)br.readLine();
+                user = Core.createUser(username, email);
+            } catch (IOException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        else{
+            user = Core.getLocalUser();
+            System.out.println("Hello, " + user.getUsername() + "!");
+        }
 
         while (code == -1) {
 
