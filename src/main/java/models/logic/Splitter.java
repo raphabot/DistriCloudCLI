@@ -17,7 +17,7 @@ public class Splitter {
         if (f == null)
             throw new IllegalArgumentException("File must be not null!");
         this.f = f;
-        System.out.println("File Length (KB): " + f.length() / 1024.0);
+        //System.out.println("File Length (KB): " + f.length() / 1024.0);
     }
 
     public boolean split(long size) {
@@ -64,7 +64,7 @@ public class Splitter {
             // f.delete();
             f = fparts[0];
 
-            System.out.println("Length Readed (KB): " + flength / 1024.0);
+            //System.out.println("Length Readed (KB): " + flength / 1024.0);
             return true;
         } catch (Exception ex) {
             System.out.println(ex);
@@ -121,7 +121,7 @@ public class Splitter {
             fos.flush();
             fos.close();
             f = dest;
-            System.out.println("Length Writed: " + flength / 1024.0);
+            //System.out.println("Length Writed: " + flength / 1024.0);
             return true;
         } catch (Exception ex) {
             ex.printStackTrace();

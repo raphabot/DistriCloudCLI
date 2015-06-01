@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.crypto.SecretKey;
 import models.abstracts.CloudFileAbstract;
@@ -27,7 +28,8 @@ import services.UserService;
 public class Core {
 
     private static SimpleEntityManager simpleEntityManager;
-
+    private static User localUser;
+    
     public static void setSimpleEntityManager(SimpleEntityManager simpleEntityManager) {
         Core.simpleEntityManager = simpleEntityManager;
     }
@@ -37,20 +39,36 @@ public class Core {
         //Open file
         File file = new File(filePath);
 
-        //Calculate MD5
-        String md5 = utils.HashGenerator.generateSHA512(filePath);
+        //Calculate SHA512
+        String sha512 = utils.HashGenerator.generateSHA512(filePath);
         
-        //Generate a Key to encrypt the fileParts
-        SecretKey key = CipherDecipher.generateKey();
+        //Generate asymmetric Key to encrypt the fileParts
+        SecretKey symmetricKey = CipherDecipher.generateKey();
 
+        //Encrypt the symmetric key with the local user's symmetric key
+        ArrayList<String> encryptedKeys = new ArrayList<>();
+        encryptedKeys.add(FileEncryption.encryptSymmetricKey(symmetricKey.getEncoded(), localUser.getPublicKey()));
+        
+        /*
+        //For each user that has access to this file, encrypt the symmetric key
+        for (User user : users){
+            encryptedKey.add(FileEncryption.encryptSymmetricKey(symmetricKey.getEncoded(), user.getPublicKey());
+        }
+        */
+        
         //Create CloudFile
         String fileName = file.getName();
-        CloudFile cloudFile = new CloudFile(fileName, md5, CipherDecipher.keyToString(key));
+        CloudFile cloudFile = new CloudFile(fileName, sha512, CipherDecipher.keyToString(symmetricKey));
         
         //Slipt file
         int numParts = providers.size();
         Splitter splitter = new Splitter(file);
         splitter.split(numParts);
+        
+        //Split keys
+        for (String key : encryptedKeys){
+            
+        }
 
         //Iterate over each splitted file
         for (int i = 0; i < numParts; i++) {
@@ -59,10 +77,12 @@ public class Core {
             String partFilePathPlain = filePath + ".part." + i;
             String partFilePathCiphered = RandomStringUtils.random(15);
             
+            //Compress file
+            
             //Encode file
             FileInputStream fis = new FileInputStream(partFilePathPlain);
             FileOutputStream fos = new FileOutputStream(partFilePathCiphered);
-            CipherDecipher.encrypt(key, fis, fos);
+            CipherDecipher.encrypt(symmetricKey, fis, fos);
 
             //Upload to provider
             String remotePath = provider.uploadFile(partFilePathCiphered, partFilePathCiphered);
@@ -72,10 +92,10 @@ public class Core {
             //new File(partFilePathPlain).delete();
 
             //Calculate MD5
-            md5 = utils.HashGenerator.generateSHA512(partFilePathCiphered);
+            sha512 = utils.HashGenerator.generateSHA512(partFilePathCiphered);
 
             //Save to db
-            FilePartAbstract filePart = new FilePart(providers.get(i), i, remotePath, md5);
+            FilePartAbstract filePart = new FilePart(providers.get(i), i, remotePath, sha512);
             FilePartService fps = new FilePartService(simpleEntityManager);
             fps.save(filePart);
 
@@ -168,9 +188,14 @@ public class Core {
     }
 
     public static User getLocalUser() {
+        return localUser;
+    }
+    
+    public static boolean setLocalUser(){
         UserService us = new UserService(simpleEntityManager);
         List<User> users = us.findAll();
-        return users.get(0);
+        localUser = users.get(0);
+        return true;
     }
 
 }

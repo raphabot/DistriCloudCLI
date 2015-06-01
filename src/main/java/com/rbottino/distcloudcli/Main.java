@@ -44,6 +44,7 @@ public class Main {
         
         SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
         Core.setSimpleEntityManager(simpleEntityManager);
+        Core.setLocalUser();
         
         //Checking if it is the firt run time
         if (Core.isFirstTime()){            
