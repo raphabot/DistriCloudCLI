@@ -21,6 +21,8 @@ import services.CloudFileService;
 import services.FilePartService;
 import services.ProviderService;
 import services.UserService;
+import utils.Constants;
+import utils.ZipUnzip;
 
 /**
  * Created by raphabot on 02/02/15.
@@ -60,9 +62,14 @@ public class Core {
         String fileName = file.getName();
         CloudFile cloudFile = new CloudFile(fileName, sha512, CipherDecipher.keyToString(symmetricKey));
         
+        //Zip file
+        String zipedFileName = fileName.concat(".zip");
+        ZipUnzip.compress(fileName, zipedFileName);
+        File zipedFile = new File(zipedFileName);
+        
         //Slipt file
         int numParts = providers.size();
-        Splitter splitter = new Splitter(file);
+        Splitter splitter = new Splitter(zipedFile);
         splitter.split(numParts);
         
         //Split keys
@@ -74,7 +81,7 @@ public class Core {
         for (int i = 0; i < numParts; i++) {
             ProviderAbstract provider = providers.get(i);
             //provider.setup();
-            String partFilePathPlain = filePath + ".part." + i;
+            String partFilePathPlain = zipedFileName + ".part." + i;
             String partFilePathCiphered = RandomStringUtils.random(15);
             
             //Compress file
@@ -120,7 +127,7 @@ public class Core {
         int i = 0;
         for (FilePartAbstract filePart : fileParts) {
             ProviderAbstract provider = filePart.getProvider();
-            String filePartNameEncrypted = fileName + ".part." + i + ".encrypted";
+            String filePartNameEncrypted = fileName + ".zip.part." + i + ".encrypted";
             provider.downloadFile(filePartNameEncrypted, filePart.getRemotePath());
             
 
@@ -132,7 +139,7 @@ public class Core {
             
             //Decrypt file
             FileInputStream fis = new FileInputStream(filePartNameEncrypted);
-            String filePartNameDecrypted = fileName + ".part." + i;
+            String filePartNameDecrypted = fileName + ".zip.part." + i;
             FileOutputStream fos = new FileOutputStream(filePartNameDecrypted);
             CipherDecipher.decrypt(key, fis , fos);
             
@@ -143,12 +150,15 @@ public class Core {
         }
 
         //Merge files
-        File file = new File(fileName + ".part.0");
+        File file = new File(fileName.concat(".zip.part.0"));
         Splitter splitter = new Splitter(file);
         splitter.unsplit();
 
+        //Unzip File
+        ZipUnzip.decompress(fileName.concat(".zip"));
+        
         //Check md5
-        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(fileName));
+        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(Constants.DOWNLOADS_FOLDER + "/" + fileName));
 
         //Decode file
         return true;

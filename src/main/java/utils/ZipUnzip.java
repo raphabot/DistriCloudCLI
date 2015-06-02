@@ -6,7 +6,6 @@
 package utils;
 
 import java.io.File;
-import java.util.Calendar;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
@@ -51,7 +50,8 @@ public class ZipUnzip {
         }
     }
 
-    public static void decompress(String compressedFile, String destination) {
+    public static void decompress(String compressedFile) {
+        String destination = Constants.DOWNLOADS_FOLDER;
         try {
             ZipFile zipFile = new ZipFile(compressedFile);
             if (zipFile.isEncrypted()) {
@@ -80,7 +80,7 @@ public class ZipUnzip {
         
         beginTime = System.nanoTime();
         String destination = filePath + "decompress";
-        decompress(compressedFile, destination);
+        decompress(compressedFile);
         endTime = System.nanoTime();
         System.out.println((endTime - beginTime) / 1000000);
 
