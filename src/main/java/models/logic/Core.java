@@ -44,12 +44,14 @@ public class Core {
         //Calculate SHA512
         String sha512 = utils.HashGenerator.generateSHA512(filePath);
         
-        //Generate asymmetric Key to encrypt the fileParts
-        SecretKey symmetricKey = CipherDecipher.generateKey();
+        //Generate symmetric Key to encrypt the fileParts
+        //SecretKey symmetricKey = CipherDecipher.generateKey();
+        byte[] symmetricKey = FileEncryption.generateSKey();
 
-        //Encrypt the symmetric key with the local user's symmetric key
+        //Encrypt the symmetric key with the local user's private asymmetric key
         ArrayList<String> encryptedKeys = new ArrayList<>();
-        encryptedKeys.add(FileEncryption.encryptSymmetricKey(symmetricKey.getEncoded(), localUser.getPublicKey()));
+        //encryptedKeys.add(FileEncryption.encryptSymmetricKey(symmetricKey.getEncoded(), localUser.getPublicKey()));
+        String encryptedSymmetricKey = FileEncryption.encryptSymmetricKey(symmetricKey, localUser.getPublicKey());
         
         /*
         //For each user that has access to this file, encrypt the symmetric key
@@ -60,11 +62,11 @@ public class Core {
         
         //Create CloudFile
         String fileName = file.getName();
-        CloudFile cloudFile = new CloudFile(fileName, sha512, CipherDecipher.keyToString(symmetricKey));
+        CloudFile cloudFile = new CloudFile(fileName, sha512, encryptedSymmetricKey);
         
         //Zip file
-        String zipedFileName = fileName.concat(".zip");
-        ZipUnzip.compress(fileName, zipedFileName);
+        String zipedFileName = Constants.TEMP_FOLDER + fileName.concat(".zip");
+        ZipUnzip.compress(filePath);
         File zipedFile = new File(zipedFileName);
         
         //Slipt file
@@ -89,7 +91,8 @@ public class Core {
             //Encode file
             FileInputStream fis = new FileInputStream(partFilePathPlain);
             FileOutputStream fos = new FileOutputStream(partFilePathCiphered);
-            CipherDecipher.encrypt(symmetricKey, fis, fos);
+            //CipherDecipher.encrypt(symmetricKey, fis, fos);
+            FileEncryption.decryptData(fis, fos, symmetricKey);
 
             //Upload to provider
             String remotePath = provider.uploadFile(partFilePathCiphered, partFilePathCiphered);
@@ -121,7 +124,9 @@ public class Core {
 
         List<FilePartAbstract> fileParts = cloudFile.getFileParts();
         String fileName = cloudFile.getName();
-        SecretKey key = CipherDecipher.stringToKey(cloudFile.getKey());
+        String encryptedSymmetricKey = cloudFile.getKey();
+        byte[] symmetricKey = FileEncryption.decryptSymmetricKey(encryptedSymmetricKey, localUser.getPrivateKey());
+        //SecretKey key = CipherDecipher.stringToKey(cloudFile.getKey());
         
         //Download files
         int i = 0;
@@ -141,7 +146,8 @@ public class Core {
             FileInputStream fis = new FileInputStream(filePartNameEncrypted);
             String filePartNameDecrypted = fileName + ".zip.part." + i;
             FileOutputStream fos = new FileOutputStream(filePartNameDecrypted);
-            CipherDecipher.decrypt(key, fis , fos);
+            //CipherDecipher.decrypt(key, fis , fos);
+            FileEncryption.decryptData(fis, fos, symmetricKey);
             
             //Remove temporary file on exit
             //new File(filePartNameEncrypted).deleteOnExit();
@@ -158,7 +164,7 @@ public class Core {
         ZipUnzip.decompress(fileName.concat(".zip"));
         
         //Check md5
-        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(Constants.DOWNLOADS_FOLDER + "/" + fileName));
+        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(Constants.DOWNLOADS_FOLDER + fileName));
 
         //Decode file
         return true;

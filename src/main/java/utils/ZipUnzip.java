@@ -17,10 +17,12 @@ import net.lingala.zip4j.util.Zip4jConstants;
  */
 public class ZipUnzip {
 
-    public static void compress(String inputFile, String compressedFile) {
+    public static void compress(String inputFile) {
         try {
-            ZipFile zipFile = new ZipFile(compressedFile);
             File inputFileH = new File(inputFile);
+            String compressedFile = Constants.TEMP_FOLDER.concat(inputFileH.getName()).concat(".zip");
+            ZipFile zipFile = new ZipFile(compressedFile);
+            
             ZipParameters parameters = new ZipParameters();
 
             // COMP_DEFLATE is for compression
@@ -73,14 +75,13 @@ public class ZipUnzip {
         String inputFile = filePath + fileName;
 
         long beginTime = System.nanoTime();
-        String compressedFile = inputFile + "_" + beginTime + ".zip";
-        compress(inputFile, compressedFile);
+         compress(inputFile);
         long endTime = System.nanoTime();
         System.out.println((endTime - beginTime) / 1000000);
         
         beginTime = System.nanoTime();
-        String destination = filePath + "decompress";
-        decompress(compressedFile);
+        //String destination = Constants.TEMP_FOLDER + "decompress";
+        decompress(Constants.TEMP_FOLDER + fileName + ".zip");
         endTime = System.nanoTime();
         System.out.println((endTime - beginTime) / 1000000);
 

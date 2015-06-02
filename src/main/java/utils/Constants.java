@@ -23,6 +23,7 @@ public class Constants {
     
     public static final String SYMMETRIC_ALGORITHM = "RSA";
     
-    public static final String DOWNLOADS_FOLDER = "Downloaded Files";
+    public static final String DOWNLOADS_FOLDER = "Downloaded Files/";
+    public static final String TEMP_FOLDER = "tmp/";
     
 }
