@@ -7,7 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import models.logic.User;
 
 /**
  *
@@ -18,6 +20,10 @@ import javax.persistence.Table;
 @Table(name="CloudFile")
 public abstract class CloudFileAbstract {
     
+    public static final int UPLOADING = 0;
+    public static final int OK = 1;
+    public static final int DELETED = 2;
+    
     @Id
     @GeneratedValue
     private Long id;
@@ -25,17 +31,19 @@ public abstract class CloudFileAbstract {
     @OneToMany
     private List<FilePartAbstract> fileParts;
     
+    private int status;
     private String name;
+    private String hash;
     
-    private String md5;
-    
-    private String key;
+    @OneToOne
+    private User owner;
 
-    public CloudFileAbstract(String name, String md5, String key) {
+    public CloudFileAbstract(int status, String name, String hash, User owner) {
+        this.status = status;
         this.name = name;
-        this.md5 = md5;
-        this.key = key;
+        this.hash = hash;
         this.fileParts = new ArrayList<>();
+        this.owner = owner;
     }
     
     public CloudFileAbstract(){
@@ -67,31 +75,37 @@ public abstract class CloudFileAbstract {
         this.name = name;
     }
 
-    public String getMd5() {
-        return md5;
+    public String getHash() {
+        return hash;
     }
 
-    public void setMd5(String md5) {
-        this.md5 = md5;
+    public void setHash(String md5) {
+        this.hash = md5;
     }
 
-    public String getKey() {
-        return key;
+    public int getStatus() {
+        return status;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setStatus(int status) {
+        this.status = status;
     }
-
-    
     
     public void addFilePart(FilePartAbstract filePart){
         this.fileParts.add(filePart);
     }
 
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+    
     @Override
     public String toString() {
-        return "Id: " + this.id + " Name: " + this.name + " MD5: " + this.md5 + " Key: " + this.key;
+        return "Id: " + this.id + " Status: " + this.status + " Owner: " + this.owner + " Name: " + this.name + " MD5: " + this.hash;
     }
     
     

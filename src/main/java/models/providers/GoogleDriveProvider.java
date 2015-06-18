@@ -13,18 +13,25 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.Drive.Children;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.ChildList;
+import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.ParentReference;
 import models.abstracts.ProviderAbstract;
-import sun.misc.IOUtils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
-import utils.Constants;
 
 /**
  * Created by raphabot on 21/12/14.
@@ -52,8 +59,10 @@ public class GoogleDriveProvider extends ProviderAbstract {
 
     @Transient
     private GoogleAuthorizationCodeFlow flow;
-    
+
     private String refreshToken;
+
+    private String rootFolder;
 
     public GoogleDriveProvider() {
         super();
@@ -80,7 +89,14 @@ public class GoogleDriveProvider extends ProviderAbstract {
             //GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
 
             //Create a new authorized API client
-            drive = new Drive.Builder(httpTransport, jsonFactory, credential).build();
+            drive = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("DistriCloud").build();
+            //Insert a file
+            File body = new File();
+            body.setTitle("DistriCloud");
+            body.setDescription("Created by DistriCloud");
+            body.setMimeType("application/vnd.google-apps.folder");
+            File fileg = drive.files().insert(body).execute();
+            this.rootFolder = fileg.getId();
         } catch (IOException e) {
             printStackTrace(e);
             return false;
@@ -90,19 +106,20 @@ public class GoogleDriveProvider extends ProviderAbstract {
     }
 
     @Override
-    public String uploadFile(String filePath, String title) throws IOException {
+    public String uploadFile(String filePath, String title, String parent) throws IOException {
         //Create a new authorized API client
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setClientSecrets(this.getAppID(), this.getAppSecret())
                 .setJsonFactory(jsonFactory).setTransport(this.httpTransport).build()
                 .setRefreshToken(this.getRefreshToken()).setAccessToken(this.getToken());
-        drive = new Drive.Builder(httpTransport, jsonFactory, credential).build();
+        drive = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("DistriCloud").build();
 
         //Insert a file
         File body = new File();
         body.setTitle(title);
         body.setDescription("Created by DistriCloud");
         body.setMimeType("application/octet-stream");
+        body.setParents(Arrays.asList(new ParentReference().setId(parent)));
 
         java.io.File fileContent = new java.io.File(filePath);
         FileContent mediaContent = new FileContent("application/octet-stream", fileContent);
@@ -118,7 +135,7 @@ public class GoogleDriveProvider extends ProviderAbstract {
                 .setClientSecrets(this.getAppID(), this.getAppSecret())
                 .setJsonFactory(jsonFactory).setTransport(this.httpTransport).build()
                 .setRefreshToken(this.getRefreshToken()).setAccessToken(this.getToken());
-        drive = new Drive.Builder(httpTransport, jsonFactory, credential).build();
+        drive = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("DistriCloud").build();
         try {
             File file = drive.files().get(remoteFilePath).execute();
             if (file.getDownloadUrl() != null && file.getDownloadUrl().length() > 0) {
@@ -182,7 +199,87 @@ public class GoogleDriveProvider extends ProviderAbstract {
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+
+    @Override
+    public String createFolder(String folderName, String parentFolder) {
+
+        //Create a new authorized API client
+        GoogleCredential credential = new GoogleCredential.Builder()
+                .setClientSecrets(this.getAppID(), this.getAppSecret())
+                .setJsonFactory(jsonFactory).setTransport(this.httpTransport).build()
+                .setRefreshToken(this.getRefreshToken()).setAccessToken(this.getToken());
+        drive = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("DistriCloud").build();
+
+        File body = new File();
+        body.setTitle(folderName);
+        body.setDescription("Created by DistriCloud");
+        body.setMimeType("application/vnd.google-apps.folder");
+        if (parentFolder != null && !parentFolder.isEmpty()) {
+            String remoteFolderId = isInside(folderName, parentFolder);
+            if (remoteFolderId != null){
+                return remoteFolderId;
+            }
+            body.setParents(
+                    Arrays.asList(new ParentReference().setId(parentFolder)));
+        }
+        try {
+            return drive.files().insert(body).execute().getId();
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleDriveProvider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "ERROR";
+
+    }
     
-    
+    @Override
+    public HashMap<String, String> listItems(String folderPath) {
+        HashMap<String, String> items = new HashMap<>();
+        ArrayList<String> itemsIDs = new ArrayList<>();
+
+        //Create a new authorized API client
+        GoogleCredential credential = new GoogleCredential.Builder()
+                .setClientSecrets(this.getAppID(), this.getAppSecret())
+                .setJsonFactory(jsonFactory).setTransport(this.httpTransport).build()
+                .setRefreshToken(this.getRefreshToken()).setAccessToken(this.getToken());
+        drive = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("DistriCloud").build();
+
+        Children.List request;
+        try {
+            request = drive.children().list(folderPath);
+            do {
+                try {
+                    ChildList children = request.execute();
+
+                    for (ChildReference child : children.getItems()) {
+                        itemsIDs.add(child.getId());
+
+                    }
+                    request.setPageToken(children.getNextPageToken());
+                } catch (IOException e) {
+                    System.out.println("An error occurred: " + e);
+                    request.setPageToken(null);
+                }
+            } while (request.getPageToken() != null && request.getPageToken().length() > 0);
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleDriveProvider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        for (String fileID : itemsIDs) {
+            try {
+                File file = drive.files().get(fileID).execute();
+                items.put(file.getTitle(), file.getId());
+            } catch (IOException e) {
+                System.out.println("An error occured: " + e);
+            }
+
+        }
+
+        return items;
+    }
+
+    @Override
+    public void downloadKeysPart(String localFolder, String fileName) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }

@@ -39,30 +39,28 @@ public class Main {
     public static void main(String[] args) {
 
         User user;
-        
+
         int code = -1;
-        
+
         SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
         Core.setSimpleEntityManager(simpleEntityManager);
-        
-        
+
         //Checking if it is the firt run time
-        if (Core.isFirstTime()){            
+        if (Core.isFirstTime()) {
             try {
                 System.out.println("Enter username:");
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                String username = (String)br.readLine();
+                String username = (String) br.readLine();
                 System.out.println("Enter email:");
                 br = new BufferedReader(new InputStreamReader(System.in));
-                String email = (String)br.readLine();
+                String email = (String) br.readLine();
                 user = Core.createUser(username, email);
             } catch (IOException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             } catch (NoSuchAlgorithmException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        else{
+        } else {
             Core.setLocalUser();
             user = Core.getLocalUser();
             System.out.println("Hello, " + user.getUsername() + "!");
@@ -80,27 +78,23 @@ public class Main {
             //System.out.println("7 - Delete file");
             System.out.println("0 - Exit");
 
-
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             try {
                 code = Integer.parseInt(br.readLine());
                 switch (code) {
-                    case 1:
-                    {
+                    case 1: {
                         List<ProviderAbstract> providers = Core.listProviders();
                         for (ProviderAbstract provider : providers) {
                             System.out.println(provider);
                         }
                         break;
-                    }    
-                    case 2:
-                    {
+                    }
+                    case 2: {
                         System.out.println("Choose the provider type. '" + utils.Constants.GOOGLE_PROVIDER + "' for GoogleDrive and '" + utils.Constants.DROPBOX_PROVIDER + "' for Dropbox");
                         code = Integer.parseInt(br.readLine());
                         ProviderAbstract provider = null;
-                        switch (code){
-                            case utils.Constants.GOOGLE_PROVIDER:
-                            {
+                        switch (code) {
+                            case utils.Constants.GOOGLE_PROVIDER: {
                                 provider = new GoogleDriveProvider();
                                 String url = provider.getLoginURL();
                                 System.out.println("Enter the following link in your browser and paste the token here:");
@@ -110,9 +104,8 @@ public class Main {
                                 provider.validateToken(token);
                                 break;
                             }
-                            
-                            case utils.Constants.DROPBOX_PROVIDER:
-                            {
+
+                            case utils.Constants.DROPBOX_PROVIDER: {
                                 provider = new DropboxProvider();
                                 String url = provider.getLoginURL();
                                 System.out.println("Enter the following link in your browser and paste the token here:");
@@ -122,9 +115,8 @@ public class Main {
                                 provider.validateToken(token);
                                 break;
                             }
-                            
-                            case utils.Constants.S3_PROVIDER:
-                            {
+
+                            case utils.Constants.S3_PROVIDER: {
                                 System.out.println("Enter the AccessKey:");
                                 String acessKey = br.readLine();
                                 System.out.println("Enter the SecretKey:");
@@ -132,9 +124,8 @@ public class Main {
                                 provider = new S3Provider(acessKey, secretKey);
                                 break;
                             }
-                            
-                            case utils.Constants.MSAZURE_PROVIDER:
-                            {
+
+                            case utils.Constants.MSAZURE_PROVIDER: {
                                 System.out.println("Enter the AccessKey:");
                                 String acessKey = br.readLine();
                                 System.out.println("Enter the SecretKey:");
@@ -142,44 +133,40 @@ public class Main {
                                 provider = new MSAzureProvider(acessKey, secretKey);
                                 break;
                             }
-                            
-                            default:
-                            {
+
+                            default: {
                                 System.out.println("No provider available");
                                 break;
                             }
                         }
-                        
+
                         ProviderService ps = new ProviderService(simpleEntityManager);
                         ps.save(provider);
-                        
+
                         break;
                     }
-                    
-                    case 3:
-                    {
+
+                    case 3: {
                         System.out.println("Enter the id to delete:");
                         code = Integer.parseInt(br.readLine());
-                        
+
                         ProviderService ps = new ProviderService(simpleEntityManager);
                         ps.delete(code);
-                        
+
                         break;
                     }
-                        
-                    case 4:
-                    {
+
+                    case 4: {
                         List<CloudFileAbstract> cloudFiles = Core.listCloudFiles();
-                        
-                        for (CloudFileAbstract cloudFile : cloudFiles){
+
+                        for (CloudFileAbstract cloudFile : cloudFiles) {
                             System.out.println(cloudFile);
                         }
-                        
+
                         break;
                     }
-                    
-                    case 5: 
-                    {
+
+                    case 5: {
                         System.out.println("Enter the absolut file path:");
                         String filePath = br.readLine();
                         List<ProviderAbstract> providers = Core.listProviders();
@@ -198,46 +185,39 @@ public class Main {
 
                         break;
                     }
-                    
-                    case 6: 
-                    {
+
+                    case 6: {
                         System.out.println("Enter the file id:");
                         code = Integer.parseInt(br.readLine());
                         CloudFileService cfs = new CloudFileService(simpleEntityManager);
                         CloudFileAbstract cloudFile = cfs.getById(code);
                         try {
                             Core.downloadMergeDecode(cloudFile);
-                        } catch (Exception e){
-                            printStackTrace(e);
+                        } catch (Exception e) {
+                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
                         } catch (Throwable ex) {
-                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         break;
                     }
-                    
-                    case 0:
-                    {
+
+                    case 0: {
                         simpleEntityManager.close();
                         break;
                     }
                     default:
                         break;
                 }
-                
-                
-            } 
-            catch (Exception e) {
+
+            } catch (Exception e) {
                 printStackTrace(e);
             }
 
-            if (code != 0){
+            if (code != 0) {
                 code = -1;
             }
-            
-        }
-        
- 
 
+        }
 
         /*
          SimpleEntityManager simpleEntityManager = new SimpleEntityManager(Constants.PERSISTENCE_UNIT_NAME);
@@ -325,7 +305,6 @@ public class Main {
         //providers.add(drive);
     }
 
-    
 }
 
 /*

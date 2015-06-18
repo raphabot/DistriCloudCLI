@@ -5,7 +5,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 /**
- * @author gabriel
+ * @author gabriel http://wehavescience.com/2013/02/24/criando-um-dao-generico-com-hibernate/
  * 
 * Oct 17, 2013
  * 

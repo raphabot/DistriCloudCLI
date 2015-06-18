@@ -1,5 +1,6 @@
 package models.logic;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,9 +23,13 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import static models.logic.CipherDecipher.doCopy;
+import org.apache.commons.codec.DecoderException;
 
 import org.apache.commons.codec.binary.Base64;
+import static org.apache.commons.codec.binary.Hex.decodeHex;
+import static org.apache.commons.codec.binary.Hex.encodeHex;
+import org.apache.commons.io.FileUtils;
+import static org.apache.commons.io.FileUtils.readFileToByteArray;
 
 public class FileEncryption {
 
@@ -116,5 +121,24 @@ public class FileEncryption {
         Cipher dipher = Cipher.getInstance("RSA");
         dipher.init(Cipher.DECRYPT_MODE, privKey);
         return dipher.doFinal(Base64.decodeBase64(encryptedKey));
+    }
+    
+    public static void keyToFile(String key, String keyPath) throws IOException {
+        File file = new File(keyPath);
+        char[] hex = encodeHex(key.getBytes());
+        FileUtils.writeStringToFile(file, String.valueOf(hex));
+    }
+    
+    public static String fileToKey(String keyPath) throws IOException, DecoderException {
+        File keyFile = new File(keyPath);
+        String data = new String(readFileToByteArray(keyFile));
+        byte[] encoded;
+        try {
+            encoded = decodeHex(data.toCharArray());
+        } catch (DecoderException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return new String(encoded);
     }
 }

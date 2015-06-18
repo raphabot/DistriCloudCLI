@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.Entity;
@@ -110,7 +111,7 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
     }
 
     @Override
-    public String uploadFile(String filePath, String title) throws Exception {
+    public String uploadFile(String filePath, String title, String folder) throws Exception {
 
         String remotePath = "";
 
@@ -124,6 +125,9 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
             // Create a Blob
             File file = new File(filePath);
             String fileName = file.getName();
+            if (folder != null || !folder.isEmpty()) {
+                fileName = folder.concat("/").concat(fileName);
+            }
 
             ByteSourcePayload payload = new ByteSourcePayload(Files.asByteSource(file));
             payload.getContentMetadata().setContentLength(file.length());
@@ -157,10 +161,10 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
 
             // Download the Blob
             InputStream openStream = blob.getPayload().openStream();
-            
+
             // Create the local file
             File localFile = new File(localFilePath);
-            
+
             // Write to it
             OutputStream outStream = new FileOutputStream(localFile);
 
@@ -169,7 +173,6 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
             while ((bytesRead = openStream.read(buffer)) != -1) {
                 outStream.write(buffer, 0, bytesRead);
             }
-            
 
             // Don't forget to close the context when you're done!
             context.close();
@@ -201,5 +204,51 @@ public abstract class JCloudProviderAbstract extends ProviderAbstract {
     public void setCredential(String credential) {
         this.credential = credential;
     }
+
+    @Override
+    public String createFolder(String folderName, String parentFolder) {
+        String remotePath = "";
+
+        // Access the BlobStore
+        try (BlobStoreContext context = ContextBuilder.newBuilder(jCloudProvider)
+                .credentials(this.getIdentity(), this.getCredential())
+                .buildView(BlobStoreContext.class)) {
+            // Access the BlobStore
+            BlobStore blobStore = context.getBlobStore();
+
+            if (parentFolder != null || !parentFolder.isEmpty()) {
+                folderName = parentFolder.concat("/").concat(folderName);
+            }
+
+            Blob blob = blobStore.blobBuilder(folderName)
+                    .build();
+
+            // Upload the Blob
+            blobStore.putBlob(containerName, blob);
+            remotePath = folderName;
+
+            // Don't forget to close the context when you're done!
+            context.close();
+        }
+
+        return remotePath;
+    }
+
+    @Override
+    public HashMap<String, String> listItems(String folderName) {
+        return null;//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String isInside(String folderName, String parentFolder) {
+        return null;//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void downloadKeysPart(String localFolder, String fileName) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
 
 }

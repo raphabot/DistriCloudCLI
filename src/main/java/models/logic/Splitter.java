@@ -20,7 +20,7 @@ public class Splitter {
         //System.out.println("File Length (KB): " + f.length() / 1024.0);
     }
 
-    public boolean split(long size) {
+    public boolean split(long size, String tempFolder) {
         if (size <= 0)
             return false;
 
@@ -36,7 +36,9 @@ public class Splitter {
             FileOutputStream fos = null;
 
             for (int i = 0; i < fparts.length; i++) {
-                fparts[i] = new File(f.getPath() + ".part." + i);
+                File newDir = new File(tempFolder);
+                newDir.mkdirs();
+                fparts[i] = new File(tempFolder.concat(f.getName()+ ".part." + i));
                 fos = new FileOutputStream(fparts[i]);
 
                 int read = 0;
@@ -75,11 +77,11 @@ public class Splitter {
         }
     }
 
-    public boolean split(int parts) {
+    public boolean split(int parts, String tempFolder) {
         if (parts <= 0)
             return false;
 
-        return this.split(f.length() / parts);
+        return this.split(f.length() / parts, tempFolder);
     }
 
     public boolean unsplit() {
@@ -137,7 +139,7 @@ public class Splitter {
         if (split) {
             File file = new File("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt");
             Splitter splitter = new Splitter(file);
-            System.out.println("splitter.split(3): " + splitter.split(6));
+            System.out.println("splitter.split(3): " + splitter.split(6, ""));
         } else {
             File file = new File("/home/raphabot/IdeaProjects/DistiCloudCLI/src/com/company/document.txt.part.0");
             Splitter splitter = new Splitter(file);

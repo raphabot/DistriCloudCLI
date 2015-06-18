@@ -1,5 +1,7 @@
 package models.abstracts;
 
+import java.util.HashMap;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -155,9 +157,10 @@ public abstract class ProviderAbstract {
      *
      * @param filePath file path
      * @param title title of the file
+     * @param parent parent folder id/path. Null if uploading to root.
      * @return the path or id on where to download the file
      */
-    abstract public String uploadFile(String filePath, String title) throws Exception;
+    abstract public String uploadFile(String filePath, String title, String parent) throws Exception;
 
     /**
      * This method will download a file from the provider
@@ -174,6 +177,47 @@ public abstract class ProviderAbstract {
      * @return provider Id
      */
     abstract public Long getIdProvider();
+    
+    /**
+     * This method will create a folder and return it's Id/path
+     *
+     * @param folderName Folder name
+     * @param parentFolder  Parent folder id/path
+     * @return folder id/path
+     */
+    abstract public String createFolder(String folderName, String parentFolder);
+    
+    /**
+     * This method will list all items inside a given folder
+     *
+     * @param folderName Folder path to be listed
+     * @return Hashmap Where the key is the fileName and the value is the path/id
+     */
+    abstract public HashMap<String, String> listItems(String folderPath);
+    
+    /**
+     * This method will download a part from all keys from a given file
+     *
+     * @param localFolder The local folder to save parts to
+     * @param fileName The file name
+     */
+    abstract public void downloadKeysPart(String localFolder, String fileName);
+    
+    /**
+     * This method will check if a item is inside a folder
+     *
+     * @param folderName Folder name
+     * @param parentFolder  Parent folder name
+     * @return return id/path if inside, null otherwise
+     */
+    public String isInside(String folderName, String parentFolder){
+        HashMap<String, String> items = listItems(parentFolder);
+        if (items.containsKey(folderName)){
+            return items.get(folderName);
+        }
+        return null;
+    }
+    
 
     @Override
     public String toString() {

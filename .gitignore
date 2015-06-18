@@ -30,3 +30,10 @@ downloadedFiles/
 
 # Ignore the UML folder
 /UML Reverse Engineer/
+!/src/main/resources/openrq-3.3.2.jar
+
+# Ignore temp folder
+/tmp
+
+# Ignore DownloadedFiles
+/Downloaded Files

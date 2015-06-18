@@ -25,12 +25,12 @@ public class Benchmark {
     private static long compressSplit(String filePath, int numParts){
         long beginTime = System.nanoTime();
         String compressedPath = filePath.concat(".compressed");
-        ZipUnzip.compress(filePath, compressedPath);
+        ZipUnzip.compress(filePath);
         
         File compressedFile = new File(compressedPath);
         
         Splitter splitter = new Splitter(compressedFile);
-        splitter.split(numParts);
+        splitter.split(numParts, "tmp/");
         
         return ((System.nanoTime() - beginTime) /1000000 );
     }
@@ -48,11 +48,11 @@ public class Benchmark {
         File originalFile = new File(filePath);
         
         Splitter splitter = new Splitter(originalFile);
-        splitter.split(numParts);
+        splitter.split(numParts, "tmp/");
         
         for (int i =0; i < numParts; i++){
             String partPath = filePath.concat(".part." + i);
-            ZipUnzip.compress( partPath, partPath.concat(".compressed"));
+            ZipUnzip.compress( partPath );
         }
         
         return ((System.nanoTime() - beginTime) /1000000 );

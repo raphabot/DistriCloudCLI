@@ -11,18 +11,15 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.crypto.SecretKey;
 import models.abstracts.CloudFileAbstract;
 import models.abstracts.FilePartAbstract;
 import models.file.CloudFile;
 import models.file.FilePart;
-import org.apache.commons.lang3.RandomStringUtils;
 import services.CloudFileService;
 import services.FilePartService;
 import services.ProviderService;
 import services.UserService;
 import utils.Constants;
-import utils.ZipUnzip;
 
 /**
  * Created by raphabot on 02/02/15.
@@ -31,81 +28,107 @@ public class Core {
 
     private static SimpleEntityManager simpleEntityManager;
     private static User localUser;
-    
+
     public static void setSimpleEntityManager(SimpleEntityManager simpleEntityManager) {
         Core.simpleEntityManager = simpleEntityManager;
     }
 
-    public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws NoSuchAlgorithmException, IOException, Exception, Throwable {
+    public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers) throws Exception, IOException, Throwable {
+        ArrayList<User> users = new ArrayList<>();
+        users.add(localUser);
+        return encodeSplitUpload(filePath, providers, users);
+    }
+
+    public static boolean encodeSplitUpload(String filePath, List<ProviderAbstract> providers, List<User> users) throws NoSuchAlgorithmException, IOException, Exception, Throwable {
 
         //Open file
         File file = new File(filePath);
+        if (file.exists() == false) {
+            return false;
+        }
+        String fileName = file.getName();
+
+        //Seting temp folder
+        String tempFolder = "tmp/".concat(fileName.trim()).concat("/");
 
         //Calculate SHA512
         String sha512 = utils.HashGenerator.generateSHA512(filePath);
-        
+
         //Generate symmetric Key to encrypt the fileParts
         //SecretKey symmetricKey = CipherDecipher.generateKey();
         byte[] symmetricKey = FileEncryption.generateSKey();
 
-        //Encrypt the symmetric key with the local user's private asymmetric key
+        //Encrypt the symmetric key with the local user's public asymmetric key
         ArrayList<String> encryptedKeys = new ArrayList<>();
         //encryptedKeys.add(FileEncryption.encryptSymmetricKey(symmetricKey.getEncoded(), localUser.getPublicKey()));
-        String encryptedSymmetricKey = FileEncryption.encryptSymmetricKey(symmetricKey, localUser.getPublicKey());
-        
-        /*
+
+        //Add the user himself to the users list
+        //users.add(localUser);
         //For each user that has access to this file, encrypt the symmetric key
-        for (User user : users){
-            encryptedKey.add(FileEncryption.encryptSymmetricKey(symmetricKey.getEncoded(), user.getPublicKey());
-        }
-        */
-        
-        //Create CloudFile
-        String fileName = file.getName();
-        CloudFile cloudFile = new CloudFile(fileName, sha512, encryptedSymmetricKey);
-        
-        //Zip file
-        String zipedFileName = Constants.TEMP_FOLDER + fileName.concat(".zip");
-        ZipUnzip.compress(filePath);
-        File zipedFile = new File(zipedFileName);
-        
-        //Slipt file
-        int numParts = providers.size();
-        Splitter splitter = new Splitter(zipedFile);
-        splitter.split(numParts);
-        
-        //Split keys
-        for (String key : encryptedKeys){
-            
+        for (User user : users) {
+            String keyFilePath = tempFolder.concat("keys/").concat(user.getEmail()).concat(".key");
+            String encryptedSymmetricKey = FileEncryption.encryptSymmetricKey(symmetricKey, user.getPublicKey());
+            FileEncryption.keyToFile(encryptedSymmetricKey, keyFilePath);
+            encryptedKeys.add(encryptedSymmetricKey);
+
+            //Erasure keys
+            File keyFile = new File(keyFilePath);
+            Splitter splitter = new Splitter(keyFile);
+            splitter.split(providers.size(), tempFolder.concat("keys/").concat(user.getEmail()).concat("/"));
+
         }
 
-        //Iterate over each splitted file
+        //Create CloudFile - Metadata
+        CloudFile cloudFile = new CloudFile(CloudFile.UPLOADING, fileName, sha512, localUser);
+
+        //Zip file
+        //String zipedFileName = Constants.TEMP_FOLDER + fileName.concat(".zip");
+        //ZipUnzip.compress(filePath);
+        //File zipedFile = new File(zipedFileName);
+        
+        //Encode file
+        FileInputStream fis = new FileInputStream(file);
+        FileOutputStream fos = new FileOutputStream(tempFolder.concat(fileName));
+        //CipherDecipher.encrypt(symmetricKey, fis, fos);
+        FileEncryption.encryptData(fis, fos, symmetricKey);
+        
+        File encodedFile = new File(tempFolder.concat(fileName));
+        int numParts = providers.size();
+        //Erasure file
+        Splitter splitter = new Splitter(encodedFile);
+        splitter.split(numParts, tempFolder);
+        splitter = null;
+
+        //Iterate over each file part
         for (int i = 0; i < numParts; i++) {
             ProviderAbstract provider = providers.get(i);
-            //provider.setup();
-            String partFilePathPlain = zipedFileName + ".part." + i;
-            String partFilePathCiphered = RandomStringUtils.random(15);
-            
-            //Compress file
-            
-            //Encode file
-            FileInputStream fis = new FileInputStream(partFilePathPlain);
-            FileOutputStream fos = new FileOutputStream(partFilePathCiphered);
-            //CipherDecipher.encrypt(symmetricKey, fis, fos);
-            FileEncryption.decryptData(fis, fos, symmetricKey);
 
-            //Upload to provider
-            String remotePath = provider.uploadFile(partFilePathCiphered, partFilePathCiphered);
-            
+            //Create file folder
+            String remoteFolder = provider.createFolder(fileName.trim(), null);
+            //File already exists remotely
+            if (remoteFolder == null){
+                return false;
+            }
+
+            //Upload file to provider
+            String partFilePath = tempFolder.concat(fileName.concat(".part." + i));
+            String fileRemotePath = provider.uploadFile(partFilePath, fileName.concat(".part." + i), remoteFolder);
+
+            //Keys
+            remoteFolder = provider.createFolder("keys", fileName.trim());
+            for (User user : users) {
+                String keyPartFilePath = tempFolder.concat("keys/").concat(user.getEmail()).concat("/").concat(user.getEmail()).concat(".key").concat(".part." + i);
+                String keyRemotePath = provider.uploadFile(keyPartFilePath, user.getEmail().concat(".key").concat(".part." + i), remoteFolder);
+            }
+
             //Remove temporary files
             //new File(partFilePathCiphered).delete();
             //new File(partFilePathPlain).delete();
-
-            //Calculate MD5
-            sha512 = utils.HashGenerator.generateSHA512(partFilePathCiphered);
+            //Calculate Hash
+            sha512 = utils.HashGenerator.generateSHA512(partFilePath);
 
             //Save to db
-            FilePartAbstract filePart = new FilePart(providers.get(i), i, remotePath, sha512);
+            FilePartAbstract filePart = new FilePart(providers.get(i), i, fileRemotePath, sha512);
             FilePartService fps = new FilePartService(simpleEntityManager);
             fps.save(filePart);
 
@@ -114,6 +137,7 @@ public class Core {
         }
 
         //Save to db
+        cloudFile.setStatus(CloudFile.OK);
         CloudFileService cfs = new CloudFileService(simpleEntityManager);
         cfs.save(cloudFile);
 
@@ -124,47 +148,60 @@ public class Core {
 
         List<FilePartAbstract> fileParts = cloudFile.getFileParts();
         String fileName = cloudFile.getName();
-        String encryptedSymmetricKey = cloudFile.getKey();
-        byte[] symmetricKey = FileEncryption.decryptSymmetricKey(encryptedSymmetricKey, localUser.getPrivateKey());
+        // = null;//FileEncryption.decryptSymmetricKey(encryptedSymmetricKey, localUser.getPrivateKey());
         //SecretKey key = CipherDecipher.stringToKey(cloudFile.getKey());
-        
-        //Download files
+
+        //Download all
         int i = 0;
+        String downloadFolderPath = Constants.DOWNLOADS_FOLDER.concat("/").concat(fileName).concat("/tmp/");
         for (FilePartAbstract filePart : fileParts) {
             ProviderAbstract provider = filePart.getProvider();
-            String filePartNameEncrypted = fileName + ".zip.part." + i + ".encrypted";
-            provider.downloadFile(filePartNameEncrypted, filePart.getRemotePath());
-            
 
-            //Check md5
-            System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(filePartNameEncrypted));
-            if (!utils.HashGenerator.generateSHA512(filePartNameEncrypted).equals(filePart.getMd5())){
+            // Download all KeysPart
+            String keyDownloadFolderPath = downloadFolderPath.concat("keys");
+            File keyDownloadFolder = new File(keyDownloadFolderPath);
+            keyDownloadFolder.mkdirs();
+            provider.downloadKeysPart(keyDownloadFolderPath, fileName);
+
+            String filePartName = downloadFolderPath.concat(fileName) + ".part." + i;
+            provider.downloadFile(filePartName, filePart.getRemotePath());
+
+            //Check hash
+            System.out.println("original: " + filePart.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(filePartName));
+            if (!utils.HashGenerator.generateSHA512(filePartName).equals(filePart.getMd5())) {
                 return false;
             }
-            
-            //Decrypt file
-            FileInputStream fis = new FileInputStream(filePartNameEncrypted);
-            String filePartNameDecrypted = fileName + ".zip.part." + i;
-            FileOutputStream fos = new FileOutputStream(filePartNameDecrypted);
-            //CipherDecipher.decrypt(key, fis , fos);
-            FileEncryption.decryptData(fis, fos, symmetricKey);
-            
-            //Remove temporary file on exit
-            //new File(filePartNameEncrypted).deleteOnExit();
-            
+
             i++;
         }
 
+        //Merge keys
+        File keyPart = new File(downloadFolderPath.concat("/keys/").concat(localUser.getEmail()).concat(".key.part.0"));
+        Splitter splitter = new Splitter(keyPart);
+        splitter.unsplit();
+        
         //Merge files
-        File file = new File(fileName.concat(".zip.part.0"));
-        Splitter splitter = new Splitter(file);
+        File file = new File(downloadFolderPath.concat(fileName).concat(".part.0"));
+        splitter = new Splitter(file);
         splitter.unsplit();
 
-        //Unzip File
-        ZipUnzip.decompress(fileName.concat(".zip"));
+        //Decrypt symmetricKey
+        String encryptedSymmetricKey = FileEncryption.fileToKey(downloadFolderPath.concat("keys/").concat(localUser.getEmail()).concat(".key"));
+        byte[] symmetricKey = FileEncryption.decryptSymmetricKey(encryptedSymmetricKey, localUser.getPrivateKey());
         
-        //Check md5
-        System.out.println("original: " + cloudFile.getMd5() + " Downloaded: " + utils.HashGenerator.generateSHA512(Constants.DOWNLOADS_FOLDER + fileName));
+        //Decrypt file
+        FileInputStream fis = new FileInputStream(downloadFolderPath.concat(fileName));
+        String filePartNameDecrypted = Constants.DOWNLOADS_FOLDER.concat("/").concat(fileName).concat("/").concat(fileName);
+        FileOutputStream fos = new FileOutputStream(filePartNameDecrypted);
+        //CipherDecipher.decrypt(key, fis , fos);
+        FileEncryption.decryptData(fis, fos, symmetricKey);
+
+            //Remove temporary file on exit
+        //new File(filePartNameEncrypted).deleteOnExit();
+        //Unzip File
+        //ZipUnzip.decompress(fileName.concat(".zip"));
+        //Check hash
+        System.out.println("original: " + cloudFile.getHash() + " Downloaded: " + utils.HashGenerator.generateSHA512(filePartNameDecrypted));
 
         //Decode file
         return true;
@@ -179,8 +216,8 @@ public class Core {
         CloudFileService cfs = new CloudFileService(simpleEntityManager);
         return cfs.findAll();
     }
-    
-    public static User createUser(String username, String email) throws NoSuchAlgorithmException{
+
+    public static User createUser(String username, String email) throws NoSuchAlgorithmException {
         KeyPair kp = FileEncryption.generateAKeyPair();
         User user = new User(username, email, kp.getPublic(), kp.getPrivate());
         System.out.println(user);
@@ -188,16 +225,16 @@ public class Core {
         us.save(user);
         return user;
     }
-    
-    public static User loadUser(long id){
+
+    public static User loadUser(long id) {
         UserService us = new UserService(simpleEntityManager);
         return us.getById(id);
     }
-    
-    public static boolean isFirstTime(){
+
+    public static boolean isFirstTime() {
         UserService us = new UserService(simpleEntityManager);
         List<User> users = us.findAll();
-        if (users.isEmpty()){
+        if (users.isEmpty()) {
             return true;
         }
         return false;
@@ -206,8 +243,8 @@ public class Core {
     public static User getLocalUser() {
         return localUser;
     }
-    
-    public static boolean setLocalUser(){
+
+    public static boolean setLocalUser() {
         UserService us = new UserService(simpleEntityManager);
         List<User> users = us.findAll();
         localUser = users.get(0);

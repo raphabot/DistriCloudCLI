@@ -16,8 +16,12 @@ import net.lingala.zip4j.util.Zip4jConstants;
  * @author developer
  */
 public class ZipUnzip {
+    
+    public static void compress(String inputFile){
+        compress(inputFile, 1);
+    }
 
-    public static void compress(String inputFile) {
+    public static void compress(String inputFile, int parts) {
         try {
             File inputFileH = new File(inputFile);
             String compressedFile = Constants.TEMP_FOLDER.concat(inputFileH.getName()).concat(".zip");
@@ -35,11 +39,17 @@ public class ZipUnzip {
             // DEFLATE_LEVEL_FAST
             // DEFLATE_LEVEL_FASTEST = fastest compression
             parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
-
-            // file compressed
-            zipFile.addFile(inputFileH, parameters);
-
+            
+            // Calculate each part size
             long uncompressedSize = inputFileH.length();
+            long eachPartLength = uncompressedSize / parts;
+            System.out.println(uncompressedSize);
+            System.out.println(eachPartLength);
+            
+            // file compressed
+            zipFile.createZipFile(inputFileH, parameters, true, eachPartLength);
+
+            
             File outputFileH = new File(compressedFile);
             long comrpessedSize = outputFileH.length();
 
@@ -52,13 +62,14 @@ public class ZipUnzip {
         }
     }
 
-    public static void decompress(String compressedFile) {
+    public static void decompress(String compressedFile){
+        decompress(compressedFile, 1);
+    }
+    
+    public static void decompress(String compressedFile, int parts) {
         String destination = Constants.DOWNLOADS_FOLDER;
         try {
             ZipFile zipFile = new ZipFile(compressedFile);
-            if (zipFile.isEncrypted()) {
-                //zipFile.setPassword(password);
-            }
             zipFile.extractAll(destination);
         } catch (ZipException e) {
             e.printStackTrace();
@@ -71,11 +82,11 @@ public class ZipUnzip {
     public static void main(String[] args) {
 
         String filePath = "originalFiles/";
-        String fileName = "original";
+        String fileName = "bike.jpg";
         String inputFile = filePath + fileName;
 
         long beginTime = System.nanoTime();
-         compress(inputFile);
+         compress(inputFile, 2);
         long endTime = System.nanoTime();
         System.out.println((endTime - beginTime) / 1000000);
         

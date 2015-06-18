@@ -7,6 +7,7 @@ package models.file;
 
 import javax.persistence.Entity;
 import models.abstracts.CloudFileAbstract;
+import models.logic.User;
 
 /**
  *
@@ -15,8 +16,8 @@ import models.abstracts.CloudFileAbstract;
 @Entity
 public class CloudFile extends CloudFileAbstract {
 
-    public CloudFile(String name, String md5, String key) {
-        super(name, md5, key);
+    public CloudFile(int status, String name, String hash, User owner) {
+        super(status, name, hash, owner);
     }
     
     public CloudFile(){

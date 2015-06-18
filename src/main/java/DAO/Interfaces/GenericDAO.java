@@ -8,7 +8,7 @@ package DAO.Interfaces;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.Id;
+
 
 @SuppressWarnings("unchecked")
 public class GenericDAO<PK, T> {

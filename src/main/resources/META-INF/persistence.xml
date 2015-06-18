@@ -10,7 +10,7 @@ http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
     <!-- derby -->
  
     <persistence-unit name="derby">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="hibernate.archive.autodetection" value="class" />
             <property name="hibernate.dialect" value="com.mysema.query.jpa.support.ExtendedDerbyDialect" />
@@ -50,7 +50,7 @@ http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
     <!-- hsqldb -->
  
     <persistence-unit name="hsqldb">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="hibernate.archive.autodetection" value="class" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
@@ -81,7 +81,7 @@ http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
     <!-- h2 -->
  
     <persistence-unit name="h2" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="hibernate.archive.autodetection" value="class" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
@@ -124,7 +124,7 @@ http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
     <!-- mysql -->
  
     <persistence-unit name="mysql">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="hibernate.archive.autodetection" value="class" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLInnoDBDialect" />
@@ -154,7 +154,7 @@ http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
     <!-- postgres -->
  
     <persistence-unit name="postgres">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="hibernate.archive.autodetection" value="class" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
@@ -171,7 +171,7 @@ http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
     <!-- oracle -->
  
     <persistence-unit name="oracle">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="hibernate.archive.autodetection" value="class" />
             <property name="hibernate.dialect" value="com.mysema.query.jpa.support.ExtendedOracleDialect" />
